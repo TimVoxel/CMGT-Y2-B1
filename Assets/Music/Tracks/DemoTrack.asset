@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71cd785156b541aba9f9844e8d2d441d, type: 3}
+  m_Name: DemoTrack
+  m_EditorClassIdentifier: 
+  _clip: {fileID: 8300000, guid: 0ebd0caed1688354aa92aa76f100a07e, type: 3}
+  _bpm: 120
+  _notes:
+  - _noteIndex: 0
+    _position: 7
+  - _noteIndex: 1
+    _position: 7.5
+  - _noteIndex: 2
+    _position: 8
+  - _noteIndex: 4
+    _position: 9
+  - _noteIndex: 3
+    _position: 9.5
+  - _noteIndex: 2
+    _position: 10
+  - _noteIndex: 1
+    _position: 10.5
+  - _noteIndex: 0
+    _position: 11.5
+  - _noteIndex: 2
+    _position: 12
+  - _noteIndex: 4
+    _position: 12.5
+  - _noteIndex: 2
+    _position: 13
+  - _noteIndex: 0
+    _position: 13.5
+  - _noteIndex: 2
+    _position: 14
+  - _noteIndex: 4
+    _position: 14.5
+  - _noteIndex: 2
+    _position: 15
+  - _noteIndex: 1
+    _position: 16
+  - _noteIndex: 3
+    _position: 16.5
+  - _noteIndex: 1
+    _position: 17
+  - _noteIndex: 3
+    _position: 17.5
+  - _noteIndex: 0
+    _position: 18
+  - _noteIndex: 4
+    _position: 18.5
+  - _noteIndex: 0
+    _position: 19
+  - _noteIndex: 4
+    _position: 19.5
+  - _noteIndex: 2
+    _position: 20.5
+  - _noteIndex: 2
+    _position: 21
+  - _noteIndex: 1
+    _position: 21.5
+  - _noteIndex: 3
+    _position: 22
+  - _noteIndex: 0
+    _position: 22.5
+  - _noteIndex: 4
+    _position: 23
+  - _noteIndex: 2
+    _position: 23.5
+  - _noteIndex: 2
+    _position: 24
+  - _noteIndex: 5
+    _position: 24
+  _duration: 26
