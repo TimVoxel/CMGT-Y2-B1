@@ -119,6 +119,115 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1943501
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1943507}
+  - component: {fileID: 1943504}
+  - component: {fileID: 1943503}
+  - component: {fileID: 1943508}
+  m_Layer: 0
+  m_Name: Lane floor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!33 &1943503
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1943501}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &1943504
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1943501}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 8f9c728e8534437daf2671ee98d29245, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!4 &1943507
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1943501}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.36, y: 1.8181, z: 6.4156}
+  m_LocalScale: {x: 1, y: 0.9131, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1943508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1943501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 874ee8b0d51b18b48a7f7cfd214ca66d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LaneFloor
+  _trackPlayer: {fileID: 1078981824}
+  _dropBelowButtons: 0.2
+  _squaresPerLane: 1
+  _sideMarginSquares: 2
+  _rowsBeforeHitLine: 1
+  _rowsAfterHitLine: 1
 --- !u!1 &19103603
 GameObject:
   m_ObjectHideFlags: 0
@@ -4999,6 +5108,7 @@ GameObject:
   - component: {fileID: 518397765}
   - component: {fileID: 518397766}
   - component: {fileID: 518397767}
+  - component: {fileID: 518397768}
   m_Layer: 0
   m_Name: Audience
   m_TagString: Untagged
@@ -5034,12 +5144,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96d27fee45931aa489bbb1a3c51f09fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudienceSpawner
-  _prefab: {fileID: 2167094041677517060, guid: b3685697cdaeb324f814a4e501ff7592, type: 3}
+  _prefabs:
+  - {fileID: 2167094041677517060, guid: b3685697cdaeb324f814a4e501ff7592, type: 3}
+  - {fileID: 8124665891379528002, guid: 3a2561590aa522648b46e5a8ba1cf6bb, type: 3}
+  - {fileID: 2167094041677517060, guid: c5a38fd4d5cf03a46a7cacac7b74e271, type: 3}
+  - {fileID: 8124665891379528002, guid: 2c9c56ecb33fc454890c2842900f8e6d, type: 3}
+  - {fileID: 8124665891379528002, guid: 37928b61831d3b04f992d3607f495260, type: 3}
   _engagement: {fileID: 741435186}
   _trackPlayer: {fileID: 1078981824}
   _cheer: {fileID: 518397765}
   _areaSize: {x: 22.4, y: 0.99, z: 13.23}
-  _count: 100
+  _areaGrowth: 0.25
+  _maxAreaScale: 1.5
+  _count: 20
   _minSpacing: 0.6
   _lookAt: {fileID: 1298734818}
   _engagementThresholdRange: {x: 0.05, y: 0.8}
@@ -5193,6 +5310,50 @@ MonoBehaviour:
   _onPitEnded:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &518397768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 518397762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 056e2754de06d264e8f79783bb484f8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudienceGrowth
+  _audience: {fileID: 518397764}
+  _engagement: {fileID: 741435186}
+  _trackPlayer: {fileID: 1078981824}
+  _joinsPerSecond:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.99995583
+      value: 3.4990191
+      inSlope: 5.4067492
+      outSlope: 5.4067492
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.08507523
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _maxMembers: 300
+  _leavesPerMiss: 1
+  _sloppyHitFraction: 0.8
+  _leavesPerSloppyHit: 0.5
+  _minMembers: 10
 --- !u!1 &575481541
 GameObject:
   m_ObjectHideFlags: 0
@@ -5749,12 +5910,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 741435184}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.08376, y: 0, z: 13.07483}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 6.79802, y: 0, z: 1.6487904}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1600383733}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &741435186
 MonoBehaviour:
@@ -5769,7 +5930,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EngagementHolder
   _startEngagement: 0.1
-  _decayPerSecond: 0.02
+  _decayPerSecond: 0.04
   _floor: 0
 --- !u!114 &741435187
 MonoBehaviour:
@@ -5785,9 +5946,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NoteEngagementDriver
   _trackPlayer: {fileID: 1078981824}
   _engagement: {fileID: 741435186}
-  _perfectHitGain: 0.1
-  _sloppyHitGain: 0.05
-  _missPenalty: 0.05
+  _perfectHitGain: 0.075
+  _sloppyHitGain: 0.02
+  _missPenalty: 0.1
 --- !u!114 &813969425 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4238984354899526239, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
@@ -6043,14 +6204,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a88acf3a1de0124197489c67cb565fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrackPlayer
-  _offsetPerNoteIndex: 0.3
+  _offsetPerNoteIndex: 0.2
   _spawnContainer: {fileID: 1078981823}
   _finalPosOffset: 10
   _prefab: {fileID: 4826755375477980176, guid: 99775632111b320469de8f6e26cd1ac8, type: 3}
   _track: {fileID: 11400000, guid: ced7416c50bc62946947d34f780a12dc, type: 2}
   _spawnTimeOffset: 5
   _audioSource: {fileID: 1078981825}
-  _playOnStart: 1
+  _playOnStart: 0
   _startDelay: 2.5
   _hitWindow: 0.15
   _laneButtonPrefab: {fileID: 8056780063353051947, guid: ef0059c41f911164b8a23fe64c7223f0, type: 3}
@@ -6178,10 +6339,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LaneHeightCalibrator
   _trackPlayer: {fileID: 1078981824}
-  _origin: {fileID: 1298734819}
+  _heightProvider: {fileID: 1600383734}
   _heightFraction: 0.7
-  _eyeToHeadTop: 0.1
+  _referenceHeight: 1.75
+  _armSpanToHeight: 1
   _minEyeHeight: 0.8
+  _settleTolerance: 0.03
+  _settleTime: 0.5
 --- !u!1 &1106603721
 GameObject:
   m_ObjectHideFlags: 0
@@ -6370,7 +6534,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5.48
+      value: 5.55
       objectReference: {fileID: 0}
     - target: {fileID: 1717954561962503726, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6718,6 +6882,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1600383732
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1600383733}
+  - component: {fileID: 1600383734}
+  m_Layer: 0
+  m_Name: Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1600383733
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600383732}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.71426, y: 0, z: 11.42604}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 741435185}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1600383734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600383732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df223216b7b2f6d46b4b55ddaf4213b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHeightProvider
+  _origin: {fileID: 1298734819}
+  _eyeToHeadTop: 0.1
+  _maxHeight: 2.2
 --- !u!1 &1688426773
 GameObject:
   m_ObjectHideFlags: 0
@@ -7686,8 +7898,9 @@ SceneRoots:
   - {fileID: 1597190820}
   - {fileID: 1934781065}
   - {fileID: 19103609}
-  - {fileID: 1078981823}
   - {fileID: 123845628}
-  - {fileID: 741435185}
   - {fileID: 518397763}
   - {fileID: 1106603723}
+  - {fileID: 1078981823}
+  - {fileID: 1600383733}
+  - {fileID: 1943507}

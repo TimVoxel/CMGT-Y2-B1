@@ -23,6 +23,13 @@ public class TrackNote : MonoBehaviour
         _renderer.material = material;
     }
 
+    // For when the lane layout changes mid-flight; the note keeps its progress along the new path
+    public void SetPath(Vector3 startPos, Vector3 endPos)
+    {
+        _startPos = startPos;
+        _endPos = endPos;
+    }
+
     // Driven by TrackPlayer so every note follows the same song clock
     public void SetSongTime(double songTime)
     {

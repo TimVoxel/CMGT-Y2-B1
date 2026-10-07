@@ -7,6 +7,7 @@ using UnityEngine;
 public class TrackPlayer : MonoBehaviour
 {
     [SerializeField] private float _offsetPerNoteIndex;
+
     [SerializeField] private Transform _spawnContainer;
     [SerializeField] private float _finalPosOffset;
 
@@ -50,10 +51,25 @@ public class TrackPlayer : MonoBehaviour
     public double CurrentBeat => _track.GetBeat(_songTime);
     public Track Track => _track;
 
-    // World position of the middle of the hit line, where the lane buttons sit
-    public Vector3 HitLineCenter => _spawnContainer.TransformPoint(Vector3.forward * _finalPosOffset);
+    private float _horizontalHeightFactor;
+    public float HorizontalHeightFactor
+    {
+        get => _horizontalHeightFactor;
+        set
+        {
+            _horizontalHeightFactor = value;
+            UpdateLaneButtonPositions();
+            UpdateNotePaths();
+        }
+    }
+    private float HorizontalOffsetPerNote => _offsetPerNoteIndex + Mathf.Max(0f, HorizontalHeightFactor);
 
-    // For scheduling sounds sample-accurately against the song
+    public float LaneSpacing => HorizontalOffsetPerNote;
+    public int LaneCount => _track.MaxNoteIndex + 1;
+    // Lanes run along forward, notes travel toward +forward
+    public Quaternion LaneRotation => _spawnContainer.rotation;
+
+    public Vector3 HitLineCenter => _spawnContainer.TransformPoint(Vector3.forward * _finalPosOffset);
     public double SongTimeToDspTime(double songTime) => _startDspTime + songTime;
 
     private void Awake()
@@ -88,6 +104,24 @@ public class TrackPlayer : MonoBehaviour
             button.transform.localRotation = Quaternion.identity;
             button.Init(this, i, _noteButtonMaterials[i % (_track.MaxNoteIndex + 1)]);
             _laneButtons.Add(button);
+        }
+    }
+
+    // Buttons are spawned before the player's height is known, so they need moving once the lane spacing changes
+    private void UpdateLaneButtonPositions()
+    {
+        for (var i = 0; i < _laneButtons.Count; i++)
+        {
+            _laneButtons[i].transform.localPosition = GetEndLocalPosition(i);
+        }
+    }
+
+    private void UpdateNotePaths()
+    {
+        foreach (var note in _notes)
+        {
+            note.SetPath(GetSpawnLocalPosition(note.NoteIndex), GetEndLocalPosition(note.NoteIndex));
+            note.SetSongTime(_songTime);
         }
     }
 
@@ -150,13 +184,11 @@ public class TrackPlayer : MonoBehaviour
         Started?.Invoke();
     }
 
-    // Moves the whole note highway (lane buttons and notes in flight) so the hit line sits at this world height
     public void SetHitLineHeight(float worldY)
     {
         _spawnContainer.position += Vector3.up * (worldY - HitLineCenter.y);
     }
-
-    // Switches to another track and starts it from the beginning
+    
     public void PlayTrack(Track track)
     {
         ResetPlayer();
@@ -202,7 +234,6 @@ public class TrackPlayer : MonoBehaviour
             note.SetSongTime(_songTime);
         }
 
-        // Notes stay hittable until they're a full hit window late
         for (var i = _notes.Count - 1; i >= 0; i--)
         {
             var note = _notes[i];
@@ -243,25 +274,25 @@ public class TrackPlayer : MonoBehaviour
     private Vector3 GetSpawnLocalPosition(int noteIndex)
     {
         var center = _track.MaxNoteIndex * 0.5f;
-        var rightOffset = (-center + (float)noteIndex) * _offsetPerNoteIndex * Vector3.right;
+        var rightOffset = (-center + (float)noteIndex) * HorizontalOffsetPerNote * Vector3.right;
         return Vector3.zero + rightOffset;
     }
 
     private Vector3 GetEndLocalPosition(int noteIndex)
     {
         var center = _track.MaxNoteIndex * 0.5f;
-        var rightOffset = (-center + (float)noteIndex) * _offsetPerNoteIndex * Vector3.right;
+        var rightOffset = (-center + (float)noteIndex) * HorizontalOffsetPerNote * Vector3.right;
         return Vector3.zero + rightOffset + Vector3.forward * _finalPosOffset;
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         if (_spawnContainer == null)
         {
             return;
         }
 
-        var radius = Mathf.Max(0.02f, Mathf.Abs(_offsetPerNoteIndex) * 0.2f);
+        var radius = Mathf.Max(0.02f, Mathf.Abs(HorizontalOffsetPerNote) * 0.2f);
       
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(_spawnContainer.position, radius * 0.5f);
@@ -289,7 +320,7 @@ public class TrackPlayer : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.Handles.Label(
             _spawnContainer.position,
-            $"lanes 0-{_track.MaxNoteIndex}  spacing {_offsetPerNoteIndex:0.##}  travel {_spawnTimeOffset:0.##}s");
+            $"lanes 0-{_track.MaxNoteIndex}  spacing {HorizontalOffsetPerNote:0.##}  travel {_spawnTimeOffset:0.##}s");
 #endif
     }
 }
