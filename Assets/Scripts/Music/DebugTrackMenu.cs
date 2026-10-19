@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit.UI;
 
 // World-space debug panel: a Restart button plus one button per track.
 // Builds its own canvas at runtime, so just drop it on an empty GameObject and place that where you want the panel.
@@ -11,7 +9,6 @@ public class DebugTrackMenu : MonoBehaviour
     [SerializeField] private TrackPlayer _trackPlayer;
     [SerializeField] private Track[] _tracks;
 
-    // In canvas units; the canvas is scaled by _metersPerUnit
     [SerializeField] private Vector2 _buttonSize = new Vector2(400.0f, 70.0f);
     [SerializeField] private float _spacing = 10.0f;
     [SerializeField] private float _metersPerUnit = 0.001f;
@@ -31,30 +28,7 @@ public class DebugTrackMenu : MonoBehaviour
 
     private void BuildUI()
     {
-        var canvasObject = new GameObject("Debug Track Menu Canvas", typeof(RectTransform));
-        canvasObject.transform.SetParent(transform, false);
-        canvasObject.transform.localScale = Vector3.one * _metersPerUnit;
-
-        var canvas = canvasObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.WorldSpace;
-        canvas.worldCamera = Camera.main;
-        // Lets the XR ray / poke interactors click the buttons
-        canvasObject.AddComponent<TrackedDeviceGraphicRaycaster>();
-
-        canvasObject.AddComponent<Image>().color = _panelColor;
-
-        var layout = canvasObject.AddComponent<VerticalLayoutGroup>();
-        var padding = Mathf.RoundToInt(_spacing);
-        layout.padding = new RectOffset(padding, padding, padding, padding);
-        layout.spacing = _spacing;
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = false;
-        layout.childForceExpandHeight = false;
-
-        var fitter = canvasObject.AddComponent<ContentSizeFitter>();
-        fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        var canvasObject = WorldUI.CreatePanel(transform, "Debug Track Menu Canvas", _metersPerUnit, _spacing, _panelColor);
 
         CreateButton(canvasObject.transform, "Restart", () => _trackPlayer.Play());
 
@@ -77,36 +51,8 @@ public class DebugTrackMenu : MonoBehaviour
 
     private Image CreateButton(Transform parent, string label, UnityEngine.Events.UnityAction onClick)
     {
-        var buttonObject = new GameObject(label, typeof(RectTransform));
-        buttonObject.transform.SetParent(parent, false);
-
-        var image = buttonObject.AddComponent<Image>();
-        image.color = _buttonColor;
-
-        var button = buttonObject.AddComponent<Button>();
-        button.targetGraphic = image;
-        button.onClick.AddListener(onClick);
-
-        var element = buttonObject.AddComponent<LayoutElement>();
-        element.preferredWidth = _buttonSize.x;
-        element.preferredHeight = _buttonSize.y;
-
-        var textObject = new GameObject("Label", typeof(RectTransform));
-        textObject.transform.SetParent(buttonObject.transform, false);
-        var textRect = (RectTransform)textObject.transform;
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = Vector2.zero;
-        textRect.offsetMax = Vector2.zero;
-
-        var text = textObject.AddComponent<TextMeshProUGUI>();
-        text.text = label;
-        text.fontSize = _fontSize;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = Color.white;
-        text.raycastTarget = false;
-
-        return image;
+        var button = WorldUI.CreateButton(parent, label, onClick, _buttonSize, _fontSize, _buttonColor);
+        return (Image)button.targetGraphic;
     }
 
     private void RefreshHighlight()
@@ -118,7 +64,6 @@ public class DebugTrackMenu : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    // Fills in the player and every Track asset in the project when the component is first added
     private void Reset()
     {
         _trackPlayer = FindFirstObjectByType<TrackPlayer>();

@@ -14,17 +14,12 @@ public class AudienceGrowth : MonoBehaviour
         new Keyframe(0.3f, 0.0f),
         new Keyframe(0.7f, 0.5f),
         new Keyframe(1.0f, 2.0f));
-    // Every member runs its own Update and gets checked by CrowdClap on each beat, so keep this modest for Quest
+        
     [SerializeField] private int _maxMembers = 120;
-
-    // Members lost per missed note. Fractions accumulate, e.g. 0.5 = one leaves every second miss.
-    [SerializeField] private float _leavesPerMiss = 1.0f;
-    // A hit counts as sloppy when it's further off than this fraction of the hit window (0.6 = outer 40%)
-    [SerializeField, Range(0.0f, 1.0f)] private float _sloppyHitFraction = 0.6f;
-    // Members lost per sloppy hit. Less than a miss, since the note was still played.
-    [SerializeField] private float _leavesPerSloppyHit = 0.5f;
-    // Never drops below this, so the stage is never totally empty
     [SerializeField] private int _minMembers = 10;
+    [SerializeField] private float _leavesPerMiss = 1.0f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _sloppyHitFraction = 0.6f;
+    [SerializeField] private float _leavesPerSloppyHit = 0.5f;
 
     private float _pendingJoins;
     private float _pendingLeaves;
@@ -54,7 +49,6 @@ public class AudienceGrowth : MonoBehaviour
             _pendingJoins -= 1.0f;
             if (_audience.Members.Count >= _maxMembers)
             {
-                // Don't bank joins while full, or a burst would pour in the moment anyone leaves
                 _pendingJoins = 0.0f;
                 break;
             }
@@ -67,9 +61,9 @@ public class AudienceGrowth : MonoBehaviour
         Lose(_leavesPerMiss);
     }
 
-    private void OnNoteHit(TrackNote note, float offset)
+    private void OnNoteHit(TrackNote note, float accuracy)
     {
-        if (Mathf.Abs(offset) > _sloppyHitFraction * _trackPlayer.HitWindow)
+        if (accuracy < 1.0f - _sloppyHitFraction)
         {
             Lose(_leavesPerSloppyHit);
         }

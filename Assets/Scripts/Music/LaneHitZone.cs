@@ -12,10 +12,13 @@ public class LaneHitZone : MonoBehaviour
 
     [SerializeField] private float _minHitSpeed = 0.0f;
     [SerializeField] private float _retriggerDelay = 0.1f;
+    [SerializeField] private float _perfectHitAccuracyThreshold = 0.9f;
 
     [SerializeField] private UnityEvent _onPressed;
     [SerializeField] private UnityEvent _onNoteHit;
+    [SerializeField] private UnityEvent _onPerfectHit;
     [SerializeField] private UnityEvent _onEmptyPress;
+    [SerializeField] private UnityEvent _onMissed;
 
     private float _lastPressTime = float.NegativeInfinity;
 
@@ -27,6 +30,11 @@ public class LaneHitZone : MonoBehaviour
         _laneIndex = laneIndex;
         _renderer.material = material;
         _psRenderer.material = material;
+    }
+
+    public void NotifyMissed()
+    {
+        _onMissed?.Invoke();
     }
 
     private void Reset()
@@ -58,16 +66,24 @@ public class LaneHitZone : MonoBehaviour
         }
 
         _lastPressTime = Time.time;
-        _onPressed.Invoke();
+        _onPressed?.Invoke();
 
-        var hit = _trackPlayer != null && _trackPlayer.TryHit(_laneIndex, out _);
+        if (_trackPlayer == null)
+        {
+            return;
+        }
+        var hit = _trackPlayer.TryHit(_laneIndex, out var accuracy);
         if (hit)
         {
-            _onNoteHit.Invoke();
+            if (accuracy >= _perfectHitAccuracyThreshold)
+            {
+                _onPerfectHit?.Invoke();
+            }
+            _onNoteHit?.Invoke();
         }
         else
         {
-            _onEmptyPress.Invoke();
+            _onEmptyPress?.Invoke();
         }
         hitter.PlayHaptics(hit);
     }
