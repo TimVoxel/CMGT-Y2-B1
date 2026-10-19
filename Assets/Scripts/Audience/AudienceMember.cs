@@ -33,6 +33,15 @@ public class AudienceMember : MonoBehaviour
     [SerializeField] private float _returnSpeed = 1.0f;
     [SerializeField] private float _turnSpeed = 540.0f;
 
+    [Header("Joining / leaving")]
+    // Time to scale in when joining and out when logging off
+    [SerializeField] private float _popDuration = 0.35f;
+
+    private Vector3 _baseScale;
+    // 0 = invisible, 1 = full size. Moves toward 1 normally, toward 0 when leaving.
+    private float _presence = 1.0f;
+    private bool _isLeaving;
+
     private Vector3 _basePosition;
     private Quaternion _baseRotation;
     // Where the member is standing (local, no bob). Equal to _basePosition unless moshing.
@@ -76,8 +85,39 @@ public class AudienceMember : MonoBehaviour
         _clapCeiling = clapCeiling;
     }
 
+    // Grows in from nothing, for members joining mid-show
+    public void PopIn()
+    {
+        _presence = 0.0f;
+        transform.localScale = Vector3.zero;
+    }
+
+    // Shrinks away and destroys itself. The spawner has already dropped it from the crowd.
+    public void Leave()
+    {
+        _isLeaving = true;
+        _isMoshing = false;
+    }
+
+    private void UpdatePresence()
+    {
+        var target = _isLeaving ? 0.0f : 1.0f;
+        if (_presence == target)
+        {
+            return;
+        }
+
+        _presence = Mathf.MoveTowards(_presence, target, Time.deltaTime / Mathf.Max(1e-4f, _popDuration));
+        transform.localScale = _baseScale * Mathf.SmoothStep(0.0f, 1.0f, _presence);
+        if (_isLeaving && _presence <= 0.0f)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void Awake()
     {
+        _baseScale = transform.localScale;
         _basePosition = transform.localPosition;
         _baseRotation = transform.localRotation;
         _groundPosition = _basePosition;
@@ -188,6 +228,7 @@ public class AudienceMember : MonoBehaviour
             }
         }
 
+        UpdatePresence();
         UpdateGroundPosition();
         transform.localPosition = _groundPosition + Vector3.up * height;
     }

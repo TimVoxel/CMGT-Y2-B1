@@ -5,4 +5,4 @@
 &#x20; e.g. `ls BrainstormPlugin` and `grep -ril "finale" --include=\*.java BrainstormPlugin`.
 
 \- Prefer the built-in Grep/Glob/Read tools over shell grep/find/ls.
-
+\- Write comments only when absolutely necessary. Don't describe what fields do - use intuitive informatie naming.
