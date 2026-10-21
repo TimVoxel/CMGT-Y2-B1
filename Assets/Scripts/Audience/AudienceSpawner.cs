@@ -10,16 +10,9 @@ public class AudienceSpawner : MonoBehaviour
     [SerializeField] private EngagementHolder _engagement;
     [SerializeField] private TrackPlayer _trackPlayer;
     [SerializeField] private CrowdCheer _cheer;
-
-    // Area for the starting crowd. Grows as more members join,
-    // extending away from _lookAt so the front row stays where it is.
     [SerializeField] private Vector3 _areaSize = new Vector3(10.0f, 2.0f, 6.0f);
-
-    // How fast width and depth grow with headcount: each side scales by (count / start count) ^ this.
-    // 0 = never grows (crowd just gets denser), 0.5 = same density as the starting crowd, 1 = sides grow as fast as headcount.
     [SerializeField, Range(0.0f, 1.0f)] private float _areaGrowth = 0.25f;
 
-    // Cap on how many times wider/deeper than the starting area it can get
     [SerializeField, Min(1.0f)] private float _maxAreaScale = 1.5f;
     [FormerlySerializedAs("_count")] [SerializeField] private int _initialSize = 40;
     [SerializeField] private float _minSpacing = 0.6f;
@@ -27,9 +20,12 @@ public class AudienceSpawner : MonoBehaviour
 
     [SerializeField] private Vector2 _engagementThresholdRange = new Vector2(0.05f, 0.8f);
     [SerializeField] private Vector2 _maxAmplitudeRange = new Vector2(0.15f, 0.3f);
+    [SerializeField] private bool _spawnOnStart = true;
 
     private readonly List<AudienceMember> _members = new List<AudienceMember>();
+    private int _nextMemberId;
     public event Action<AudienceMember, bool> MemberAdded;
+    public event Action<AudienceMember> MemberRemoved;
 
     public IReadOnlyList<AudienceMember> Members => _members;
     public int StartCount => _initialSize;
@@ -60,13 +56,17 @@ public class AudienceSpawner : MonoBehaviour
 
     private void Start()
     {
-        Spawn();
+        if (_spawnOnStart)
+        {
+            Spawn();
+        }
     }
 
     public void Spawn()
     {
         foreach (var member in _members)
         {
+            MemberRemoved?.Invoke(member);
             Destroy(member.gameObject);
         }
         _members.Clear();
@@ -81,14 +81,27 @@ public class AudienceSpawner : MonoBehaviour
     {
         var position = FindFreeSpot(GetAreaSize(_members.Count + 1));
 
-        var member = Instantiate(_prefabs[Random.Range(0, _prefabs.Length)], transform);
-        member.transform.localPosition = position;
-        member.transform.localRotation = GetFacing(position);
-        member.Init(
-            _engagement,
-            _trackPlayer,
-            Random.Range(_engagementThresholdRange.x, _engagementThresholdRange.y),
-            Random.Range(_maxAmplitudeRange.x, _maxAmplitudeRange.y));
+        var prefabIndex = Random.Range(0, _prefabs.Length);
+        var engagementThreshold = Random.Range(_engagementThresholdRange.x, _engagementThresholdRange.y);
+        var maxAmplitude = Random.Range(_maxAmplitudeRange.x, _maxAmplitudeRange.y);
+        return AddMember(_nextMemberId, prefabIndex, position, GetFacing(position), engagementThreshold, maxAmplitude, popIn);
+    }
+
+    public AudienceMember AddMember(
+        int id,
+        int prefabIndex,
+        Vector3 localPosition,
+        Quaternion localRotation,
+        float engagementThreshold,
+        float maxAmplitude,
+        bool popIn)
+    {
+        _nextMemberId = Mathf.Max(_nextMemberId, id + 1);
+
+        var member = Instantiate(_prefabs[prefabIndex], transform);
+        member.transform.localPosition = localPosition;
+        member.transform.localRotation = localRotation;
+        member.Init(id, prefabIndex, _engagement, _trackPlayer, engagementThreshold, maxAmplitude);
         if (_cheer != null)
         {
             member.SetClapCeiling(_cheer.CheerEngagement);
@@ -121,10 +134,28 @@ public class AudienceSpawner : MonoBehaviour
             return false;
         }
 
+        RemoveMemberAt(index);
+        return true;
+    }
+
+    public bool RemoveMember(int id)
+    {
+        var index = _members.FindIndex(member => member.Id == id);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        RemoveMemberAt(index);
+        return true;
+    }
+
+    private void RemoveMemberAt(int index)
+    {
         var member = _members[index];
         _members.RemoveAt(index);
         member.Leave();
-        return true;
+        MemberRemoved?.Invoke(member);
     }
 
     private Vector3 FindFreeSpot(Vector3 areaSize)

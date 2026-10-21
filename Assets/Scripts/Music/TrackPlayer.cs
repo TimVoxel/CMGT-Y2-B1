@@ -30,12 +30,17 @@ public class TrackPlayer : MonoBehaviour
 
     public event Action<TrackNote, float> NoteHit;
     public event Action<TrackNote> NoteMissed;
+    public event Action<int> EmptyPressed;
     public event Action Started;
     public event Action Finished;
+    public event Action LayoutChanged;
+
+    private const float MaxReplayAudioDrift = 0.1f;
 
     private double _startDspTime;
     private double _lastDspTime;
     private double _songTime;
+    private bool _isExternallyClocked;
     private bool _isPlaying;
     private bool _finished;
     private int _processedNoteIndex;
@@ -57,6 +62,7 @@ public class TrackPlayer : MonoBehaviour
             _horizontalHeightFactor = value;
             UpdateLaneButtonPositions();
             UpdateNotePaths();
+            LayoutChanged?.Invoke();
         }
     }
     private float HorizontalOffsetPerNote => _offsetPerNoteIndex + Mathf.Max(0f, HorizontalHeightFactor);
@@ -143,15 +149,32 @@ public class TrackPlayer : MonoBehaviour
 
         if (closest == null)
         {
+            EmptyPressed?.Invoke(laneIndex);
             return false;
         }
 
         var offset = -closest.TimeLeft;
-        _notes.Remove(closest);
         accuracy = 1.0f - Mathf.Clamp01(Mathf.Abs(offset) / Mathf.Max(1e-6f, HitWindow));
-        NoteHit?.Invoke(closest, accuracy);
-        closest.Destroy();
+        RemoveHitNote(closest, accuracy);
         return true;
+    }
+
+    private void RemoveHitNote(TrackNote note, float accuracy)
+    {
+        _notes.Remove(note);
+        NoteHit?.Invoke(note, accuracy);
+        note.Destroy();
+    }
+
+    private void RemoveMissedNote(TrackNote note)
+    {
+        _notes.Remove(note);
+        NoteMissed?.Invoke(note);
+        if (note.NoteIndex < _laneButtons.Count)
+        {
+            _laneButtons[note.NoteIndex].NotifyMissed();
+        }
+        note.Destroy();
     }
 
     private void Start()
@@ -166,6 +189,7 @@ public class TrackPlayer : MonoBehaviour
     {
         ResetPlayer();
 
+        _isExternallyClocked = false;
         _startDspTime = AudioSettings.dspTime + _startDelay;
         _lastDspTime = AudioSettings.dspTime;
         _songTime = -_startDelay;
@@ -182,6 +206,7 @@ public class TrackPlayer : MonoBehaviour
     public void SetHitLineHeight(float worldY)
     {
         _spawnContainer.position += Vector3.up * (worldY - HitLineCenter.y);
+        LayoutChanged?.Invoke();
     }
     
     public void PlayTrack(Track track)
@@ -190,6 +215,84 @@ public class TrackPlayer : MonoBehaviour
         _track = track;
         SpawnLaneButtons();
         Play();
+    }
+
+    public void PlayExternallyClocked(Track track, double songTime)
+    {
+        ResetPlayer();
+        _track = track;
+        SpawnLaneButtons();
+
+        _isExternallyClocked = true;
+        _audioSource.clip = _track.Clip;
+        _isPlaying = true;
+        SetExternalSongTime(songTime, 1.0f);
+        Started?.Invoke();
+    }
+
+    public void SetExternalSongTime(double songTime, float playbackSpeed)
+    {
+        _songTime = songTime;
+        _startDspTime = AudioSettings.dspTime - songTime;
+
+        var clip = _audioSource.clip;
+        var audible = clip != null && playbackSpeed > 0.0f && songTime >= 0.0 && songTime < clip.length;
+        if (!audible)
+        {
+            if (_audioSource.isPlaying)
+            {
+                _audioSource.Pause();
+            }
+            return;
+        }
+
+        _audioSource.pitch = playbackSpeed;
+        if (!_audioSource.isPlaying || Mathf.Abs(_audioSource.time - (float)songTime) > MaxReplayAudioDrift)
+        {
+            _audioSource.time = (float)songTime;
+            if (!_audioSource.isPlaying)
+            {
+                _audioSource.Play();
+            }
+        }
+    }
+
+    public void ApplyRecordedHit(int noteRecordIndex, float accuracy)
+    {
+        var note = _notes.Find(candidate => candidate.RecordIndex == noteRecordIndex);
+        if (note == null)
+        {
+            return;
+        }
+        if (note.NoteIndex < _laneButtons.Count)
+        {
+            _laneButtons[note.NoteIndex].ShowPress(true, accuracy);
+        }
+        RemoveHitNote(note, accuracy);
+    }
+
+    public void ApplyRecordedMiss(int noteRecordIndex)
+    {
+        var note = _notes.Find(candidate => candidate.RecordIndex == noteRecordIndex);
+        if (note != null)
+        {
+            RemoveMissedNote(note);
+        }
+    }
+
+    public void ApplyRecordedEmptyPress(int laneIndex)
+    {
+        if (laneIndex < _laneButtons.Count)
+        {
+            _laneButtons[laneIndex].ShowPress(false, 0.0f);
+        }
+        EmptyPressed?.Invoke(laneIndex);
+    }
+
+    public void ApplyRecordedLayout(float hitLineHeight, float horizontalHeightFactor)
+    {
+        SetHitLineHeight(hitLineHeight);
+        HorizontalHeightFactor = horizontalHeightFactor;
     }
 
     public void ResetPlayer()
@@ -214,14 +317,17 @@ public class TrackPlayer : MonoBehaviour
             return;
         }
 
-        UpdateSongTime();
+        if (!_isExternallyClocked)
+        {
+            UpdateSongTime();
+        }
 
         for (var i = _processedNoteIndex + 1; i < _track.NoteCount; i++)
         {
             if (_track.GetNoteTime(i) <= _songTime + _spawnTimeOffset)
             {
                 _processedNoteIndex = i;
-                _notes.Add(SpawnNote(_track.Notes[i], _track.GetNoteTime(i)));
+                _notes.Add(SpawnNote(i));
             }
         }
 
@@ -230,18 +336,17 @@ public class TrackPlayer : MonoBehaviour
             note.SetSongTime(_songTime);
         }
 
+        if (_isExternallyClocked)
+        {
+            return;
+        }
+
         for (var i = _notes.Count - 1; i >= 0; i--)
         {
             var note = _notes[i];
             if (note.TimeLeft < -_hitWindow)
             {
-                _notes.RemoveAt(i);
-                NoteMissed?.Invoke(note);
-                if (note.NoteIndex < _laneButtons.Count)
-                {
-                    _laneButtons[note.NoteIndex].NotifyMissed();
-                }
-                note.Destroy();
+                RemoveMissedNote(note);
             }
         }
 
@@ -268,12 +373,13 @@ public class TrackPlayer : MonoBehaviour
         }
     }
 
-    private TrackNote SpawnNote(TrackNoteRecord record, float hitTime)
+    private TrackNote SpawnNote(int recordIndex)
     {
+        var record = _track.Notes[recordIndex];
         var note = Instantiate(_prefab, _spawnContainer);
         note.transform.localPosition = GetSpawnLocalPosition(record.NoteIndex);
-        note.Init(record.NoteIndex, GetEndLocalPosition(record.NoteIndex),
-             hitTime,
+        note.Init(record.NoteIndex, recordIndex, GetEndLocalPosition(record.NoteIndex),
+             _track.GetNoteTime(recordIndex),
              _spawnTimeOffset,
             _noteMaterials[record.NoteIndex % (_track.MaxNoteIndex + 1)]);
         return note;

@@ -8,25 +8,24 @@ public class CrowdCheer : MonoBehaviour
     [SerializeField] private TrackPlayer _trackPlayer;
 
     [SerializeField] private AudioClip[] _cheerClips;
-    // Optional, one is added if left empty
     [SerializeField] private AudioSource _source;
 
     [SerializeField, Range(0.0f, 1.0f)] private float _cheerEngagement = 0.85f;
-    // Cheer straight away when engagement climbs past the threshold
     [SerializeField] private bool _cheerOnReachingThreshold = true;
-    // Chance per second of another cheer while engagement stays above the threshold
     [SerializeField] private float _cheerChancePerSecond = 0.1f;
-    // Quiet time after a cheer finishes before the next one can start
     [SerializeField] private float _cooldown = 3.0f;
-    // Volume at the threshold and at full engagement
     [SerializeField] private Vector2 _volumeRange = new Vector2(0.6f, 1.0f);
     [SerializeField] private Vector2 _pitchRange = new Vector2(0.95f, 1.05f);
+    [SerializeField] private bool _cheersOnItsOwn = true;
 
     private float _nextCheerAllowedTime;
     private int _lastClipIndex = -1;
     private bool _wasAboveThreshold;
 
     public float CheerEngagement => _cheerEngagement;
+
+    // clip index, pitch, volume
+    public event System.Action<int, float, float> Cheered;
 
     private void Awake()
     {
@@ -40,6 +39,11 @@ public class CrowdCheer : MonoBehaviour
 
     private void Update()
     {
+        if (!_cheersOnItsOwn)
+        {
+            return;
+        }
+
         var isAbove = _engagement != null
             && _engagement.Engagement >= _cheerEngagement
             && _trackPlayer != null && _trackPlayer.IsPlaying;
@@ -51,7 +55,6 @@ public class CrowdCheer : MonoBehaviour
             return;
         }
 
-        // Frame-rate independent version of "_cheerChancePerSecond"
         var chance = 1.0f - Mathf.Exp(-_cheerChancePerSecond * Time.deltaTime);
         if ((justReached && _cheerOnReachingThreshold) || Random.value < chance)
         {
@@ -66,21 +69,26 @@ public class CrowdCheer : MonoBehaviour
             return;
         }
 
-        var clip = _cheerClips[PickClipIndex()];
         var excitement = _engagement != null
             ? Mathf.InverseLerp(_cheerEngagement, 1.0f, _engagement.Engagement)
             : 1.0f;
-
-        _source.Stop();
-        _source.clip = clip;
-        _source.pitch = Random.Range(_pitchRange.x, _pitchRange.y);
-        _source.volume = Mathf.Lerp(_volumeRange.x, _volumeRange.y, excitement);
-        _source.Play();
-
-        _nextCheerAllowedTime = Time.time + clip.length / Mathf.Max(0.01f, _source.pitch) + _cooldown;
+        Cheer(PickClipIndex(), Random.Range(_pitchRange.x, _pitchRange.y), Mathf.Lerp(_volumeRange.x, _volumeRange.y, excitement));
     }
 
-    // Random, but never the same clip twice in a row
+    public void Cheer(int clipIndex, float pitch, float volume)
+    {
+        var clip = _cheerClips[clipIndex];
+        _source.Stop();
+        _source.clip = clip;
+        _source.pitch = pitch;
+        _source.volume = volume;
+        _source.Play();
+        _lastClipIndex = clipIndex;
+        Cheered?.Invoke(clipIndex, pitch, volume);
+
+        _nextCheerAllowedTime = Time.time + clip.length / Mathf.Max(0.01f, pitch) + _cooldown;
+    }
+
     private int PickClipIndex()
     {
         if (_cheerClips.Length == 1)
@@ -95,7 +103,6 @@ public class CrowdCheer : MonoBehaviour
         }
         else
         {
-            // Pick from the other clips by skipping over the last one
             index = Random.Range(0, _cheerClips.Length - 1);
             if (index >= _lastClipIndex)
             {

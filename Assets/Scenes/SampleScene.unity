@@ -4662,7 +4662,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   m_Enabled: 1
-  serializedVersion: 13
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 0
@@ -4714,7 +4714,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShapeRadius: 0
+  m_ShadowRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
@@ -5627,13 +5627,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8391222552659086748, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: -8380157826906577798, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: -7640558969779515294, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: -6733177361254619370, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: -1599826595754709761, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 77fd14167ee806145ae549c68737a566, type: 3}
       propertyPath: m_Name
       value: unity - concert stage graybox colors 4fbx
       objectReference: {fileID: 0}
+    - target: {fileID: 2800250516343163423, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 7717331358011810647, guid: 77fd14167ee806145ae549c68737a566, type: 3}
       propertyPath: m_Name
       value: Spotlight front 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8513859187771203891, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 8700725330082129686, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -5650,6 +5682,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 961676368}
   m_SourcePrefab: {fileID: 100100000, guid: 77fd14167ee806145ae549c68737a566, type: 3}
+--- !u!4 &943565446 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1670256625, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 1298734817}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &961676364 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7717331358011810647, guid: 77fd14167ee806145ae549c68737a566, type: 3}
@@ -5733,7 +5770,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1051012839}
   m_Enabled: 1
-  serializedVersion: 13
+  serializedVersion: 12
   m_Type: 0
   m_Color: {r: 0.7294118, g: 0.3333333, b: 0.8274511, a: 1}
   m_Intensity: 100
@@ -5785,7 +5822,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShapeRadius: 0.025
+  m_ShadowRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
@@ -6083,6 +6120,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b734f2bd29eeddd4d85afb0c266228c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &1248259874 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 202364688, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 1298734817}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1278488079
 GameObject:
   m_ObjectHideFlags: 0
@@ -6365,6 +6407,8 @@ MonoBehaviour:
   _cheer: {fileID: 518397765}
   _revenue: {fileID: 398411581}
   _sceneTransition: {fileID: 2084511303}
+  _recordingWriter: {fileID: 2054501746}
+  _replaySceneName: ReplayScene
   _setList:
   - {fileID: 11400000, guid: 6cd8e1c9164703f4ab71a742fb153817, type: 2}
   - {fileID: 11400000, guid: ced7416c50bc62946947d34f780a12dc, type: 2}
@@ -6457,6 +6501,7 @@ Transform:
   - {fileID: 741435185}
   - {fileID: 398411580}
   - {fileID: 1533948920}
+  - {fileID: 2054501744}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1600383734
@@ -6612,6 +6657,83 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!4 &1991836184 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+  m_PrefabInstance: {fileID: 1298734817}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2054501743
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2054501744}
+  - component: {fileID: 2054501745}
+  - component: {fileID: 2054501746}
+  m_Layer: 0
+  m_Name: Recorder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2054501744
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054501743}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1600383733}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2054501745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054501743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5daf9ef50506bd3498e3ebb56e8691da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConcertRecorder
+  _concertSet: {fileID: 1533948921}
+  _trackPlayer: {fileID: 1078981824}
+  _audience: {fileID: 518397764}
+  _engagement: {fileID: 741435186}
+  _cheer: {fileID: 518397765}
+  _moshPit: {fileID: 518397767}
+  _head: {fileID: 1991836184}
+  _leftHand: {fileID: 1248259874}
+  _rightHand: {fileID: 943565446}
+  _poseSampleRate: 30
+  _minPositionDelta: 0.001
+  _minAngleDelta: 0.25
+  _minEngagementDelta: 0.005
+--- !u!114 &2054501746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054501743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6c2234959090ae40836127c16948633, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RecordingSessionWriter
+  _recorder: {fileID: 2054501745}
+  _outputSubPath: recordings
 --- !u!43 &2084454688
 Mesh:
   m_ObjectHideFlags: 0
