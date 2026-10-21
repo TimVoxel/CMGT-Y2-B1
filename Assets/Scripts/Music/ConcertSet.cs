@@ -13,6 +13,8 @@ public class ConcertSet : MonoBehaviour
     [SerializeField] private CrowdCheer _cheer;
     [SerializeField] private ConcertRevenue _revenue;
     [SerializeField] private SceneTransition _sceneTransition;
+    [SerializeField] private RecordingSessionWriter _recordingWriter;
+    [SerializeField] private string _replaySceneName = "ReplayScene";
     [SerializeField] private Track[] _setList;
 
     [SerializeField] private float _applauseDuration = 5.0f;
@@ -34,8 +36,12 @@ public class ConcertSet : MonoBehaviour
     private GameObject _endPanel;
     private Button _revenueButton;
     private TextMeshProUGUI _revenueText;
+    private Button _watchReplayButton;
     private int _songIndex = -1;
     private Coroutine _applause;
+
+    public event System.Action SetStarted;
+    public event System.Action SetEnded;
 
     private void OnEnable()
     {
@@ -100,6 +106,10 @@ public class ConcertSet : MonoBehaviour
         WorldUI.CreateLabel(_endPanel.transform, "That's the show!", _buttonSize, _fontSize);
         _revenueButton = WorldUI.CreateButton(_endPanel.transform, "Show revenue", ShowRevenue, _buttonSize, _fontSize, _buttonColor);
         _revenueText = _revenueButton.GetComponentInChildren<TextMeshProUGUI>();
+        if (_recordingWriter != null)
+        {
+            _watchReplayButton = WorldUI.CreateButton(_endPanel.transform, "Watch replay", WatchReplay, _buttonSize, _fontSize, _buttonColor);
+        }
         WorldUI.CreateButton(_endPanel.transform, "Restart", _sceneTransition.ReloadScene, _buttonSize, _fontSize, _buttonColor);
     }
 
@@ -112,6 +122,7 @@ public class ConcertSet : MonoBehaviour
 
         _startPanel.SetActive(false);
         _engagement.ResetEngagement();
+        SetStarted?.Invoke();
         PlaySong(0);
     }
 
@@ -149,7 +160,24 @@ public class ConcertSet : MonoBehaviour
         else
         {
             _endPanel.SetActive(true);
+            SetEnded?.Invoke();
         }
+    }
+
+    private void WatchReplay()
+    {
+        _watchReplayButton.interactable = false;
+        StartCoroutine(LoadReplayOnceSaved());
+    }
+
+    private IEnumerator LoadReplayOnceSaved()
+    {
+        while (_recordingWriter.IsWriting)
+        {
+            yield return null;
+        }
+        ReplayEventDispatcher.RequestedRecordingPath = _recordingWriter.LastRecordingPath;
+        _sceneTransition.LoadScene(_replaySceneName);
     }
 
     private void ShowRevenue()
@@ -166,6 +194,7 @@ public class ConcertSet : MonoBehaviour
         _cheer = FindFirstObjectByType<CrowdCheer>();
         _revenue = FindFirstObjectByType<ConcertRevenue>();
         _sceneTransition = FindFirstObjectByType<SceneTransition>();
+        _recordingWriter = FindFirstObjectByType<RecordingSessionWriter>();
     }
 #endif
 }

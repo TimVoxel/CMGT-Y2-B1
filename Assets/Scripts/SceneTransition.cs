@@ -7,4 +7,9 @@ public class SceneTransition : MonoBehaviour
     {
         SceneManager.LoadScene(gameObject.scene.buildIndex);
     }
+
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
+    }
 }

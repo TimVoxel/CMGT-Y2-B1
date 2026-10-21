@@ -66,14 +66,21 @@ public class LaneHitZone : MonoBehaviour
         }
 
         _lastPressTime = Time.time;
-        _onPressed?.Invoke();
 
         if (_trackPlayer == null)
         {
+            _onPressed?.Invoke();
             return;
         }
         var hit = _trackPlayer.TryHit(_laneIndex, out var accuracy);
-        if (hit)
+        ShowPress(hit, accuracy);
+        hitter.PlayHaptics(hit);
+    }
+
+    public void ShowPress(bool hitNote, float accuracy)
+    {
+        _onPressed?.Invoke();
+        if (hitNote)
         {
             if (accuracy >= _perfectHitAccuracyThreshold)
             {
@@ -85,6 +92,5 @@ public class LaneHitZone : MonoBehaviour
         {
             _onEmptyPress?.Invoke();
         }
-        hitter.PlayHaptics(hit);
     }
 }

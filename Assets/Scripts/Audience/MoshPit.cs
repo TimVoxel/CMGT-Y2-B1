@@ -11,15 +11,13 @@ public class MoshPit : MonoBehaviour
     [SerializeField] private TrackPlayer _trackPlayer;
 
     [SerializeField, Range(0.0f, 1.0f)] private float _startEngagement = 0.95f;
-    // Lower than the start so the pit doesn't flicker on and off around the threshold
     [SerializeField, Range(0.0f, 1.0f)] private float _stopEngagement = 0.85f;
 
-    // Pit circle, in the spawner's local space (on its floor)
     [SerializeField] private Vector2 _center = Vector2.zero;
     [SerializeField] private float _radius = 2.0f;
     [SerializeField] private float _moshSpeed = 1.5f;
-    // Moshers closer than this bump off each other
     [SerializeField] private float _bumpDistance = 0.5f;
+    [SerializeField] private bool _startsOnItsOwn = true;
 
     [SerializeField] private UnityEvent _onPitStarted;
     [SerializeField] private UnityEvent _onPitEnded;
@@ -29,9 +27,25 @@ public class MoshPit : MonoBehaviour
 
     public bool IsActive => _isActive;
 
+    public event System.Action PitStarted;
+    public event System.Action PitEnded;
+
     private Vector3 LocalCenter => new Vector3(_center.x, _audience != null ? _audience.FloorHeight : 0.0f, _center.y);
 
     private void Update()
+    {
+        if (_startsOnItsOwn)
+        {
+            StartOrEndOnEngagement();
+        }
+
+        if (_isActive)
+        {
+            ResolveBumps();
+        }
+    }
+
+    private void StartOrEndOnEngagement()
     {
         var canMosh = _trackPlayer != null && _trackPlayer.IsPlaying && _trackPlayer.Track.IsMetal;
         var engagement = _engagement != null ? _engagement.Engagement : 0.0f;
@@ -43,11 +57,6 @@ public class MoshPit : MonoBehaviour
         else if (_isActive && (!canMosh || engagement < _stopEngagement))
         {
             EndPit();
-        }
-
-        if (_isActive)
-        {
-            ResolveBumps();
         }
     }
 
@@ -82,6 +91,7 @@ public class MoshPit : MonoBehaviour
         }
 
         _onPitStarted.Invoke();
+        PitStarted?.Invoke();
     }
 
     public void EndPit()
@@ -97,9 +107,9 @@ public class MoshPit : MonoBehaviour
         _moshers.Clear();
 
         _onPitEnded.Invoke();
+        PitEnded?.Invoke();
     }
 
-    // Push overlapping moshers apart and bounce their velocities, like bodies colliding
     private void ResolveBumps()
     {
         for (var i = 0; i < _moshers.Count; i++)
@@ -121,7 +131,6 @@ public class MoshPit : MonoBehaviour
                 a.Nudge(-push);
                 b.Nudge(push);
 
-                // Only bounce if they're moving into each other
                 var closingSpeed = Vector3.Dot(a.MoshVelocity - b.MoshVelocity, normal);
                 if (closingSpeed > 0.0f)
                 {
