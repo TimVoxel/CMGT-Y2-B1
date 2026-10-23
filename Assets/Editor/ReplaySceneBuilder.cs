@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
 using Object = UnityEngine.Object;
 
 // Builds the replay scene from the gameplay scene: live-only systems out, replay components in.
@@ -12,8 +16,11 @@ using Object = UnityEngine.Object;
 public static class ReplaySceneBuilder
 {
     public const string ReplayScenePath = "Assets/Scenes/ReplayScene.unity";
-    private const string SourceScenePath = "Assets/Scenes/SampleScene.unity";
+    private const string SourceScenePath = "Assets/Scenes/Concert.unity";
     private const string ControllerModelPath = "Assets/Samples/XR Interaction Toolkit/3.0.11/Starter Assets/Models/UniversalController.fbx";
+    private const string SpectatorRigPath = "Assets/Samples/XR Interaction Toolkit/3.0.11/Starter Assets/Prefabs/XR Origin (XR Rig).prefab";
+    private const string TeleportInteractionLayer = "Teleport";
+    private static readonly string[] TeleportSurfacePaths = { "/unity - concert stage graybox colors 4fbx/Cube", "/Cylinder", "/floor test" };
     private const float ViewerStepBack = 1.5f;
     private static readonly Vector3 ControllerModelOffset = new Vector3(0.0f, 0.0f, -0.05f);
     private static readonly Quaternion ControllerModelRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
@@ -21,16 +28,23 @@ public static class ReplaySceneBuilder
     [MenuItem("Tools/Recording/Build Replay Scene")]
     public static void Build()
     {
-        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ReplayScenePath) != null)
+        var exists = AssetDatabase.LoadAssetAtPath<SceneAsset>(ReplayScenePath) != null;
+        if (exists && !Application.isBatchMode
+            && !EditorUtility.DisplayDialog("Build Replay Scene", $"Rebuild {ReplayScenePath} from {SourceScenePath}? Changes made to it by hand are lost.", "Rebuild", "Cancel"))
         {
-            Fail($"{ReplayScenePath} already exists, delete it to build it again");
             return;
         }
         if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
         {
             return;
         }
-        if (!AssetDatabase.CopyAsset(SourceScenePath, ReplayScenePath))
+        if (exists)
+        {
+            // Copying over the file keeps its .meta, so the GUID that build settings point at stays valid
+            File.Copy(SourceScenePath, ReplayScenePath, true);
+            AssetDatabase.ImportAsset(ReplayScenePath, ImportAssetOptions.ForceUpdate);
+        }
+        else if (!AssetDatabase.CopyAsset(SourceScenePath, ReplayScenePath))
         {
             Fail($"Couldn't copy {SourceScenePath}");
             return;
@@ -94,9 +108,8 @@ public static class ReplaySceneBuilder
         SetReference(panel, "_dispatcher", dispatcher);
         SetReference(panel, "_sceneTransition", sceneTransition);
 
-        var viewer = Find<XROrigin>().transform;
-        var back = Vector3.ProjectOnPlane(-viewer.forward, Vector3.up).normalized;
-        viewer.position += back * ViewerStepBack;
+        ReplaceWithSpectatorRig();
+        AddTeleportSurfaces();
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
@@ -115,6 +128,109 @@ public static class ReplaySceneBuilder
         DestroyComponents<AudienceGrowth>();
         DestroyComponents<NoteEngagementDriver>();
         DestroyComponents<LaneOffsetCalibrator>();
+    }
+
+    // The gameplay rig has locomotion stripped out, the spectator gets a stock rig that can move, turn and teleport
+    private static void ReplaceWithSpectatorRig()
+    {
+        var oldOrigin = Find<XROrigin>();
+        var oldRoot = oldOrigin.transform;
+        var back = Vector3.ProjectOnPlane(-oldRoot.forward, Vector3.up).normalized;
+        var position = oldRoot.position + back * ViewerStepBack;
+        var rotation = oldRoot.rotation;
+        var trackingOriginMode = oldOrigin.RequestedTrackingOriginMode;
+        var clearFlags = oldOrigin.Camera.clearFlags;
+        var backgroundColor = oldOrigin.Camera.backgroundColor;
+
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(SpectatorRigPath)
+                     ?? throw new InvalidOperationException($"Missing {SpectatorRigPath}");
+        var rig = (GameObject)PrefabUtility.InstantiatePrefab(prefab, oldOrigin.gameObject.scene);
+        RemapReferences(oldRoot, rig.transform);
+        Object.DestroyImmediate(oldOrigin.gameObject);
+
+        if (Physics.Raycast(position + Vector3.up, Vector3.down, out var ground, 10.0f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        {
+            position.y = ground.point.y;
+        }
+        rig.transform.SetPositionAndRotation(position, rotation);
+
+        var origin = rig.GetComponent<XROrigin>();
+        origin.RequestedTrackingOriginMode = trackingOriginMode;
+        origin.Camera.clearFlags = clearFlags;
+        origin.Camera.backgroundColor = backgroundColor;
+    }
+
+    private static void RemapReferences(Transform oldRoot, Transform newRoot)
+    {
+        var counterparts = new Dictionary<Object, Object>();
+        foreach (var part in newRoot.GetComponentsInChildren<Transform>(true))
+        {
+            foreach (var instance in part.GetComponents<Component>().Append<Object>(part.gameObject))
+            {
+                var source = PrefabUtility.GetCorrespondingObjectFromOriginalSource(instance);
+                if (source != null)
+                {
+                    counterparts[source] = instance;
+                }
+            }
+        }
+
+        foreach (var component in Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (component == null || component.transform.IsChildOf(oldRoot) || component.transform.IsChildOf(newRoot))
+            {
+                continue;
+            }
+
+            var serialized = new SerializedObject(component);
+            var property = serialized.GetIterator();
+            while (property.Next(true))
+            {
+                if (property.propertyType != SerializedPropertyType.ObjectReference || !IsInside(property.objectReferenceValue, oldRoot))
+                {
+                    continue;
+                }
+
+                var source = PrefabUtility.GetCorrespondingObjectFromOriginalSource(property.objectReferenceValue);
+                var counterpart = source != null && counterparts.TryGetValue(source, out var found) ? found : null;
+                if (counterpart == null)
+                {
+                    Debug.LogWarning($"{component.GetType().Name}.{property.propertyPath} on {component.name} pointed at the gameplay rig and has no counterpart on the spectator rig");
+                }
+                property.objectReferenceValue = counterpart;
+            }
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+    }
+
+    private static bool IsInside(Object target, Transform root)
+    {
+        var transform = target switch
+        {
+            Component component => component.transform,
+            GameObject gameObject => gameObject.transform,
+            _ => null,
+        };
+        return transform != null && transform.IsChildOf(root);
+    }
+
+    private static void AddTeleportSurfaces()
+    {
+        var teleportLayers = InteractionLayerMask.GetMask(TeleportInteractionLayer);
+        foreach (var path in TeleportSurfacePaths)
+        {
+            var surface = GameObject.Find(path) ?? throw new InvalidOperationException($"{SourceScenePath} has no teleport surface '{path}'");
+            surface.AddComponent<TeleportationArea>().interactionLayers = teleportLayers;
+        }
+
+        // Their solid colliders would stop the teleport arc mid-air
+        foreach (var collider in Object.FindObjectsByType<Collider>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (collider.name.StartsWith("Laser"))
+            {
+                collider.isTrigger = true;
+            }
+        }
     }
 
     private static Transform CreateHeadVisual(Transform parent)

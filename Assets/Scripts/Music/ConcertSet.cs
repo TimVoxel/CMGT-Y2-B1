@@ -98,6 +98,11 @@ public class ConcertSet : MonoBehaviour
         _startPanel = WorldUI.CreatePanel(transform, "Start Panel", _metersPerUnit, _spacing, _panelColor);
         WorldUI.CreateLabel(_startPanel.transform, "Ready to play?", _buttonSize, _fontSize);
         WorldUI.CreateButton(_startPanel.transform, "Start", StartSet, _buttonSize, _fontSize, _buttonColor);
+        if (_recordingWriter != null)
+        {
+            var watchLastReplayButton = WorldUI.CreateButton(_startPanel.transform, "Watch last replay", WatchLastReplay, _buttonSize, _fontSize, _buttonColor);
+            watchLastReplayButton.interactable = _recordingWriter.FindLatestRecordingPath() != null;
+        }
     }
 
     private void BuildEndPanel()
@@ -168,6 +173,17 @@ public class ConcertSet : MonoBehaviour
     {
         _watchReplayButton.interactable = false;
         StartCoroutine(LoadReplayOnceSaved());
+    }
+
+    private void WatchLastReplay()
+    {
+        var path = _recordingWriter.FindLatestRecordingPath();
+        if (path == null)
+        {
+            return;
+        }
+        ReplayEventDispatcher.RequestedRecordingPath = path;
+        _sceneTransition.LoadScene(_replaySceneName);
     }
 
     private IEnumerator LoadReplayOnceSaved()
