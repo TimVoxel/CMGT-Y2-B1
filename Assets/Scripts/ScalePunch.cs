@@ -13,6 +13,13 @@ public class ScalePunch : MonoBehaviour
     private float _offset;
     private float _velocity;
 
+    // For whatever else sizes this object, so a punch in progress doesn't restore a stale scale
+    public Vector3 RestScale
+    {
+        get => _baseScale;
+        set => _baseScale = value;
+    }
+
     private void Awake()
     {
         _baseScale = transform.localScale;

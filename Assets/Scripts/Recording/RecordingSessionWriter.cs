@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,18 @@ public class RecordingSessionWriter : MonoBehaviour
 
     public string LastRecordingPath { get; private set; }
     public bool IsWriting => _writeTask != null && !_writeTask.IsCompleted;
+
+    public string FindLatestRecordingPath()
+    {
+        if (!Directory.Exists(OutputDir))
+        {
+            return null;
+        }
+        return new DirectoryInfo(OutputDir)
+            .GetFiles($"*.{Extension}")
+            .OrderByDescending(file => file.LastWriteTimeUtc)
+            .FirstOrDefault()?.FullName;
+    }
 
     private void OnEnable()
     {

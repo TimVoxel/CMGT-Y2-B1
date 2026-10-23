@@ -7,8 +7,7 @@ public class LaneHitZone : MonoBehaviour
     [SerializeField] private TrackPlayer _trackPlayer;
     [SerializeField] private int _laneIndex;
     [SerializeField] private Collider _collider;
-    [SerializeField] private MeshRenderer _renderer;
-    [SerializeField] private ParticleSystemRenderer _psRenderer;
+    [SerializeField] private ParticleSystemRenderer[] _laneColoredParticles;
 
     [SerializeField] private float _minHitSpeed = 0.0f;
     [SerializeField] private float _retriggerDelay = 0.1f;
@@ -24,12 +23,14 @@ public class LaneHitZone : MonoBehaviour
 
     public int LaneIndex => _laneIndex;
 
-    public void Init(TrackPlayer trackPlayer, int laneIndex, Material material)
+    public void Init(TrackPlayer trackPlayer, int laneIndex, Material laneMaterial)
     {
         _trackPlayer = trackPlayer;
         _laneIndex = laneIndex;
-        _renderer.material = material;
-        _psRenderer.material = material;
+        foreach (var particles in _laneColoredParticles)
+        {
+            particles.sharedMaterial = laneMaterial;
+        }
     }
 
     public void NotifyMissed()
@@ -39,6 +40,7 @@ public class LaneHitZone : MonoBehaviour
 
     private void Reset()
     {
+        _collider = GetComponent<Collider>();
         _collider.isTrigger = true;
     }
 

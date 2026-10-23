@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [DefaultExecutionOrder(-100)]
 public class TrackPlayer : MonoBehaviour
@@ -21,12 +22,13 @@ public class TrackPlayer : MonoBehaviour
     [SerializeField] private float _startDelay = 0.1f;
 
     [SerializeField] private float _hitWindow = 0.15f;
-    [SerializeField] private LaneHitZone _laneButtonPrefab;
+    [SerializeField, FormerlySerializedAs("_laneButtonPrefab")] private GameObject _laneMarkerPrefab;
+    [SerializeField] private LaneHitZone[] _laneHitZones;
 
     [SerializeField] private Material[] _noteMaterials;
     [SerializeField] private Material[] _noteButtonMaterials;
 
-    private readonly List<LaneHitZone> _laneButtons = new List<LaneHitZone>();
+    private readonly List<GameObject> _laneMarkers = new List<GameObject>();
 
     public event Action<TrackNote, float> NoteHit;
     public event Action<TrackNote> NoteMissed;
@@ -60,7 +62,7 @@ public class TrackPlayer : MonoBehaviour
         set
         {
             _horizontalHeightFactor = value;
-            UpdateLaneButtonPositions();
+            UpdateLaneMarkerPositions();
             UpdateNotePaths();
             LayoutChanged?.Invoke();
         }
@@ -82,38 +84,51 @@ public class TrackPlayer : MonoBehaviour
         }
         _audioSource.playOnAwake = false;
 
-        SpawnLaneButtons();
+        SpawnLaneMarkers();
         ResetPlayer();
     }
 
-    private void SpawnLaneButtons()
+    private void SpawnLaneMarkers()
     {
-        foreach (var button in _laneButtons)
+        foreach (var marker in _laneMarkers)
         {
-            Destroy(button.gameObject);
+            Destroy(marker);
         }
-        _laneButtons.Clear();
+        _laneMarkers.Clear();
 
-        if (_laneButtonPrefab == null || _track.NoteCount == 0)
+        if (_track.NoteCount == 0)
         {
             return;
         }
 
         for (var i = 0; i <= _track.MaxNoteIndex; i++)
         {
-            var button = Instantiate(_laneButtonPrefab, _spawnContainer);
-            button.transform.localPosition = GetEndLocalPosition(i);
-            button.transform.localRotation = Quaternion.identity;
-            button.Init(this, i, _noteButtonMaterials[i % (_track.MaxNoteIndex + 1)]);
-            _laneButtons.Add(button);
+            var laneMaterial = _noteButtonMaterials[i % (_track.MaxNoteIndex + 1)];
+            if (i < _laneHitZones.Length)
+            {
+                _laneHitZones[i].Init(this, i, laneMaterial);
+            }
+
+            if (_laneMarkerPrefab == null)
+            {
+                continue;
+            }
+            var marker = Instantiate(_laneMarkerPrefab, _spawnContainer);
+            marker.transform.localPosition = GetEndLocalPosition(i);
+            marker.transform.localRotation = Quaternion.identity;
+            foreach (var markerRenderer in marker.GetComponentsInChildren<MeshRenderer>())
+            {
+                markerRenderer.sharedMaterial = laneMaterial;
+            }
+            _laneMarkers.Add(marker);
         }
     }
 
-    private void UpdateLaneButtonPositions()
+    private void UpdateLaneMarkerPositions()
     {
-        for (var i = 0; i < _laneButtons.Count; i++)
+        for (var i = 0; i < _laneMarkers.Count; i++)
         {
-            _laneButtons[i].transform.localPosition = GetEndLocalPosition(i);
+            _laneMarkers[i].transform.localPosition = GetEndLocalPosition(i);
         }
     }
 
@@ -170,9 +185,9 @@ public class TrackPlayer : MonoBehaviour
     {
         _notes.Remove(note);
         NoteMissed?.Invoke(note);
-        if (note.NoteIndex < _laneButtons.Count)
+        if (note.NoteIndex < _laneHitZones.Length)
         {
-            _laneButtons[note.NoteIndex].NotifyMissed();
+            _laneHitZones[note.NoteIndex].NotifyMissed();
         }
         note.Destroy();
     }
@@ -213,7 +228,7 @@ public class TrackPlayer : MonoBehaviour
     {
         ResetPlayer();
         _track = track;
-        SpawnLaneButtons();
+        SpawnLaneMarkers();
         Play();
     }
 
@@ -221,7 +236,7 @@ public class TrackPlayer : MonoBehaviour
     {
         ResetPlayer();
         _track = track;
-        SpawnLaneButtons();
+        SpawnLaneMarkers();
 
         _isExternallyClocked = true;
         _audioSource.clip = _track.Clip;
@@ -264,9 +279,9 @@ public class TrackPlayer : MonoBehaviour
         {
             return;
         }
-        if (note.NoteIndex < _laneButtons.Count)
+        if (note.NoteIndex < _laneHitZones.Length)
         {
-            _laneButtons[note.NoteIndex].ShowPress(true, accuracy);
+            _laneHitZones[note.NoteIndex].ShowPress(true, accuracy);
         }
         RemoveHitNote(note, accuracy);
     }
@@ -282,9 +297,9 @@ public class TrackPlayer : MonoBehaviour
 
     public void ApplyRecordedEmptyPress(int laneIndex)
     {
-        if (laneIndex < _laneButtons.Count)
+        if (laneIndex < _laneHitZones.Length)
         {
-            _laneButtons[laneIndex].ShowPress(false, 0.0f);
+            _laneHitZones[laneIndex].ShowPress(false, 0.0f);
         }
         EmptyPressed?.Invoke(laneIndex);
     }
