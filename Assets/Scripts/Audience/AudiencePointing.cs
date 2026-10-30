@@ -13,12 +13,14 @@ public class AudiencePointing : MonoBehaviour
     }
 
     [SerializeField] private ConcertSet _concertSet;
+    [SerializeField] private TrackPlayer _trackPlayer;
     [SerializeField] private AudienceSpawner _audience;
     [SerializeField] private EngagementHolder _engagement;
     [SerializeField] private CrowdEmojis _emojis;
     [SerializeField] private Transform _leftHand;
     [SerializeField] private Transform _rightHand;
 
+    [SerializeField] private float _minHeightAboveNotes = 0.2f;
     [SerializeField, Range(0.0f, 45.0f)] private float _maxAimAngle = 10.0f;
     [SerializeField] private float _aimDuration = 0.2f;
     [SerializeField] private float _excitedDuration = 2.0f;
@@ -63,7 +65,8 @@ public class AudiencePointing : MonoBehaviour
 
     private void UpdateHand(PointingHand hand)
     {
-        var target = FindAimedMember(hand.Transform);
+        var isAboveNotes = hand.Transform.position.y >= _trackPlayer.HitLineCenter.y + _minHeightAboveNotes;
+        var target = isAboveNotes ? FindAimedMember(hand.Transform) : null;
         if (target != hand.Target)
         {
             hand.Target = target;
@@ -151,7 +154,8 @@ public class AudiencePointing : MonoBehaviour
     private void Reset()
     {
         _concertSet = FindFirstObjectByType<ConcertSet>();
-        _audience =FindFirstObjectByType<AudienceSpawner>();
+        _trackPlayer = FindFirstObjectByType<TrackPlayer>();
+        _audience = FindFirstObjectByType<AudienceSpawner>();
         _engagement = FindFirstObjectByType<EngagementHolder>();
         _emojis = FindFirstObjectByType<CrowdEmojis>();
     }

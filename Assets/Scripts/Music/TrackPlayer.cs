@@ -56,6 +56,7 @@ public class TrackPlayer : MonoBehaviour
     public bool IsPlaying => _isPlaying;
     public bool IsApplauding { get; set; }
     public float ApplauseSpeed { get; set; } = 1.0f;
+    public float LastStrikeWindUpHeight { get; private set; }
     public float HitWindow => _hitWindow;
     public double CurrentBeat => _track.GetBeat(_songTime);
     public Track Track => _track;
@@ -201,9 +202,10 @@ public class TrackPlayer : MonoBehaviour
         }
     }
 
-    public bool TryHit(int laneIndex, out float accuracy)
+    public bool TryHit(int laneIndex, float windUpHeight, out float accuracy)
     {
         accuracy = 0.0f;
+        LastStrikeWindUpHeight = windUpHeight;
         if (!_isPlaying || _isPaused)
         {
             return false;

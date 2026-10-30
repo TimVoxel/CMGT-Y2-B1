@@ -21,7 +21,18 @@ public class LaneHitter : MonoBehaviour
     private Vector3 _lastPosition;
 
     public static IReadOnlyList<LaneHitter> Active => _active;
+    public static event System.Action Struck;
+
     public Vector3 Velocity { get; private set; }
+    public float LastStrikeTime { get; private set; } = float.NegativeInfinity;
+    public float LastStrikeWindUpHeight { get; private set; }
+
+    public void NotifyStruck(float windUpHeight)
+    {
+        LastStrikeTime = Time.time;
+        LastStrikeWindUpHeight = windUpHeight;
+        Struck?.Invoke();
+    }
 
     private void OnEnable()
     {

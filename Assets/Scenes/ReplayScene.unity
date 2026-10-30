@@ -4659,11 +4659,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d27c5e4b18f4a6c8e3f71a6d05b2c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudiencePointing
+  _trackPlayer: {fileID: 1078981824}
   _audience: {fileID: 518397764}
   _engagement: {fileID: 741435186}
   _emojis: {fileID: 731900002}
   _leftHand: {fileID: 794620961}
   _rightHand: {fileID: 2091900655}
+  _minHeightAboveNotes: 0.2
   _maxAimAngle: 10
   _aimDuration: 0.2
   _excitedDuration: 2

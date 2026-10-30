@@ -4641,11 +4641,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudiencePointing
   _concertSet: {fileID: 1533948921}
+  _trackPlayer: {fileID: 1078981824}
   _audience: {fileID: 518397764}
   _engagement: {fileID: 741435186}
   _emojis: {fileID: 731900002}
   _leftHand: {fileID: 1248259874}
   _rightHand: {fileID: 943565446}
+  _minHeightAboveNotes: 0.2
   _maxAimAngle: 10
   _aimDuration: 0.2
   _excitedDuration: 2

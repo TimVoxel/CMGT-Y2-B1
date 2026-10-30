@@ -214,7 +214,8 @@ public class LaneHitZone : MonoBehaviour
             state.IsArmed = false;
             state.IsDescending = false;
             state.IsFinishingStroke = true;
-            Strike(hitter, ProjectOntoSurface(strikePoint), strikeSpeed);
+            hitter.NotifyStruck(state.DescentStartHeight);
+            Strike(hitter, ProjectOntoSurface(strikePoint), strikeSpeed, state.DescentStartHeight);
         }
     }
 
@@ -246,7 +247,7 @@ public class LaneHitZone : MonoBehaviour
         return height;
     }
 
-    private void Strike(LaneHitter hitter, Vector3 point, float speed)
+    private void Strike(LaneHitter hitter, Vector3 point, float speed, float windUpHeight)
     {
         if (Time.time - _lastPressTime < _retriggerDelay)
         {
@@ -262,7 +263,7 @@ public class LaneHitZone : MonoBehaviour
             hitter.PlayHaptics(0.0f, speed);
             return;
         }
-        var hit = _trackPlayer.TryHit(_laneIndex, out var accuracy);
+        var hit = _trackPlayer.TryHit(_laneIndex, windUpHeight, out var accuracy);
         InvokePressEvents(hit, accuracy);
         hitter.PlayHaptics(hit ? accuracy : 0.0f, speed);
     }
