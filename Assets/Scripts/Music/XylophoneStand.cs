@@ -33,8 +33,9 @@ public class XylophoneStand : MonoBehaviour
     [SerializeField] private Transform[] _feet;
     [SerializeField, Range(1.0f, 89.0f)] private float _minLegAngle = 20.0f;
     [SerializeField, Range(1.0f, 89.0f)] private float _maxLegAngle = 80.0f;
-    // The modelled legs only just touch the rails and feet, so they're lengthened to sink into them
     [SerializeField, Min(0.0f)] private float _legExtensionPerEnd = 0.05f;
+    [SerializeField] private bool _alignBarEndsToPlayer = true;
+    [SerializeField] private bool _levelBarTops = true;
 
     private readonly List<PartPose> _topParts = new List<PartPose>();
     private PartPose[] _legPoses;
@@ -90,7 +91,6 @@ public class XylophoneStand : MonoBehaviour
         _legPivots = new Transform[_legs.Length];
         for (var i = 0; i < _legs.Length; i++)
         {
-            // Scaling the pivot's Z stretches the leg along its length, the leg's own axes don't line up with it
             var pivot = new GameObject(legTransforms[i].name + " Pivot").transform;
             pivot.SetParent(transform, false);
             pivot.SetLocalPositionAndRotation(_legPoses[i].Position, Quaternion.LookRotation(_legs[i].UpwardAxis, Vector3.right));
@@ -176,6 +176,52 @@ public class XylophoneStand : MonoBehaviour
         {
             _feet[i].localPosition = legBottoms[_footLegIndices[i]] + _footOffsetsFromLegBottom[i];
         }
+
+        var towardPlayer = Vector3.ProjectOnPlane(_trackPlayer.NoteTravelDirection, Vector3.up).normalized;
+        if (_alignBarEndsToPlayer && towardPlayer != Vector3.zero)
+        {
+            AlignBars(towardPlayer, null);
+        }
+        if (_levelBarTops)
+        {
+            AlignBars(Vector3.up, _trackPlayer.HitLineCenter.y);
+        }
+    }
+
+    private void AlignBars(Vector3 direction, float? target)
+    {
+        var reaches = new float[_laneBars.Length];
+        var farthest = float.NegativeInfinity;
+        for (var i = 0; i < _laneBars.Length; i++)
+        {
+            reaches[i] = GetFarthestPoint(_laneBars[i], direction);
+            farthest = Mathf.Max(farthest, reaches[i]);
+        }
+
+        var goal = target ?? farthest;
+        for (var i = 0; i < _laneBars.Length; i++)
+        {
+            if (!float.IsNegativeInfinity(reaches[i]))
+            {
+                _laneBars[i].position += direction * (goal - reaches[i]);
+            }
+        }
+    }
+
+    private static float GetFarthestPoint(Transform bar, Vector3 direction)
+    {
+        if (!bar.TryGetComponent<MeshFilter>(out var meshFilter) || meshFilter.sharedMesh == null)
+        {
+            return float.NegativeInfinity;
+        }
+
+        var bounds = meshFilter.sharedMesh.bounds;
+        var reach = Vector3.Dot(bar.TransformPoint(bounds.center), direction);
+        for (var axis = 0; axis < 3; axis++)
+        {
+            reach += Mathf.Abs(Vector3.Dot(bar.TransformVector(AxisVector(axis) * bounds.extents[axis]), direction));
+        }
+        return reach;
     }
 
     private Vector3 ApplyLeg(Leg leg, PartPose pose, Transform pivot, float rise, float shift)
@@ -188,7 +234,6 @@ public class XylophoneStand : MonoBehaviour
             Mathf.Sin(_minLegAngle * Mathf.Deg2Rad), Mathf.Sin(_maxLegAngle * Mathf.Deg2Rad));
         var cosAngle = Mathf.Sqrt(1.0f - sinAngle * sinAngle);
         var axis = new Vector3(initialAxis.x, sinAngle, Mathf.Sign(initialAxis.z) * cosAngle).normalized;
-        // Past the angle limits the leg telescopes rather than tipping over or lying flat
         var halfLength = span / (2.0f * sinAngle);
 
         var crossing = new Vector3(pose.Position.x, floorY + span * 0.5f, pose.Position.z + shift);
@@ -206,7 +251,6 @@ public class XylophoneStand : MonoBehaviour
 
     private void OnValidate()
     {
-        // Also called when a scene loads in play mode, where the meshes aren't readable
         if (Application.isPlaying)
         {
             if (_captured)
@@ -225,7 +269,6 @@ public class XylophoneStand : MonoBehaviour
         }
     }
 
-    // Mesh vertices aren't readable in builds, so the leg's direction is measured in the editor and serialized
     private void MeasureLeg(ref Leg leg)
     {
         var mesh = leg.Transform != null && leg.Transform.TryGetComponent<MeshFilter>(out var filter) ? filter.sharedMesh : null;

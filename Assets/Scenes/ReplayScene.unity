@@ -9618,6 +9618,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1515987751}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &731900012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1597190818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8f9ee847b4e446ea8335f00c12ba643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FpsLogger
+  _interval: 5
 --- !u!1 &1597190818
 GameObject:
   m_ObjectHideFlags: 0
@@ -9628,6 +9641,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1597190820}
   - component: {fileID: 1597190819}
+  - component: {fileID: 731900012}
   m_Layer: 0
   m_Name: Debug logger
   m_TagString: Untagged
@@ -11819,6 +11833,19 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &731900010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125272693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e045a56972484ec9985748f3fe97f71f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EyeLevelPlacement
+  _player: {fileID: 1600383734}
 --- !u!1 &2125272693
 GameObject:
   m_ObjectHideFlags: 0
@@ -11829,6 +11856,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2125272695}
   - component: {fileID: 2125272694}
+  - component: {fileID: 731900010}
   m_Layer: 0
   m_Name: Replay Controls
   m_TagString: Untagged

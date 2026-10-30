@@ -28,6 +28,8 @@ public class TrackPlayer : MonoBehaviour
     [SerializeField] private Material[] _noteMaterials;
     [SerializeField] private Material[] _noteButtonMaterials;
 
+    [SerializeField] private GamePause _pause;
+
     private readonly List<GameObject> _laneMarkers = new List<GameObject>();
 
     public event Action<TrackNote, float> NoteHit;
@@ -44,6 +46,7 @@ public class TrackPlayer : MonoBehaviour
     private double _songTime;
     private bool _isExternallyClocked;
     private bool _isPlaying;
+    private bool _isPaused;
     private bool _finished;
     private int _processedNoteIndex;
 
@@ -74,6 +77,8 @@ public class TrackPlayer : MonoBehaviour
     public Quaternion LaneRotation => _spawnContainer.rotation;
 
     public Vector3 HitLineCenter => _spawnContainer.TransformPoint(Vector3.forward * _finalPosOffset);
+    // From where notes spawn towards the hit line, i.e. towards the player
+    public Vector3 NoteTravelDirection => (HitLineCenter - _spawnContainer.position).normalized;
     public double SongTimeToDspTime(double songTime) => _startDspTime + songTime;
 
     private void Awake()
@@ -86,6 +91,59 @@ public class TrackPlayer : MonoBehaviour
 
         SpawnLaneMarkers();
         ResetPlayer();
+    }
+
+    private void OnEnable()
+    {
+        if (_pause != null)
+        {
+            _pause.Paused += OnPaused;
+            _pause.Resumed += OnResumed;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_pause != null)
+        {
+            _pause.Paused -= OnPaused;
+            _pause.Resumed -= OnResumed;
+        }
+    }
+
+    private void OnPaused()
+    {
+        if (!_isPlaying || _isExternallyClocked)
+        {
+            return;
+        }
+        _isPaused = true;
+        _audioSource.Pause();
+    }
+
+    // The song clock follows the audio hardware clock, which kept running while paused, so restart it from where the song stopped
+    private void OnResumed()
+    {
+        if (!_isPaused)
+        {
+            return;
+        }
+        _isPaused = false;
+        _startDspTime = AudioSettings.dspTime - _songTime;
+        _lastDspTime = AudioSettings.dspTime;
+
+        if (_songTime < 0.0)
+        {
+            _audioSource.Stop();
+            if (_audioSource.clip != null)
+            {
+                _audioSource.PlayScheduled(_startDspTime);
+            }
+        }
+        else
+        {
+            _audioSource.UnPause();
+        }
     }
 
     private void SpawnLaneMarkers()
@@ -144,7 +202,7 @@ public class TrackPlayer : MonoBehaviour
     public bool TryHit(int laneIndex, out float accuracy)
     {
         accuracy = 0.0f;
-        if (!_isPlaying)
+        if (!_isPlaying || _isPaused)
         {
             return false;
         }
@@ -314,6 +372,7 @@ public class TrackPlayer : MonoBehaviour
     {
         _audioSource.Stop();
         _isPlaying = false;
+        _isPaused = false;
         _finished = false;
         _songTime = 0.0;
         _processedNoteIndex = -1;
@@ -327,7 +386,7 @@ public class TrackPlayer : MonoBehaviour
 
     private void Update()
     {
-        if (!_isPlaying)
+        if (!_isPlaying || _isPaused)
         {
             return;
         }
@@ -413,6 +472,13 @@ public class TrackPlayer : MonoBehaviour
         var rightOffset = (-center + (float)noteIndex) * HorizontalOffsetPerNote * Vector3.right;
         return Vector3.zero + rightOffset + Vector3.forward * _finalPosOffset;
     }
+
+#if UNITY_EDITOR
+    private void Reset()
+    {
+        _pause = FindFirstObjectByType<GamePause>();
+    }
+#endif
 
     private void OnDrawGizmos()
     {

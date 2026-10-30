@@ -9,7 +9,8 @@ public class PlayerHeightProvider : MonoBehaviour
     [SerializeField] private float _eyeToHeadTop = 0.1f;
     [SerializeField] private float _maxHeight = 2.2f;
 
-    // Read live rather than cached in Update, so callers never see a stale (or zero) value due to script order
+    public Transform Origin => _origin.transform;
+    public Transform Head => _origin.Camera.transform;
     public float FloorY => _origin.transform.position.y;
     public float EyeHeight => _origin.Camera.transform.position.y - FloorY;
     public float HeadTop => EyeHeight + _eyeToHeadTop;

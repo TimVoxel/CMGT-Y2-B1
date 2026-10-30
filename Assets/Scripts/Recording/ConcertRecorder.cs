@@ -12,6 +12,7 @@ public class ConcertRecorder : MonoBehaviour
     [SerializeField] private EngagementHolder _engagement;
     [SerializeField] private CrowdCheer _cheer;
     [SerializeField] private MoshPit _moshPit;
+    [SerializeField] private GamePause _pause;
 
     [SerializeField] private Transform _head;
     [SerializeField] private Transform _leftHand;
@@ -26,6 +27,9 @@ public class ConcertRecorder : MonoBehaviour
     private double _startTime;
     private double _nextPoseSampleTime;
     private float _lastEngagement;
+    private bool _isPaused;
+    private double _pausedAt;
+    private double _pausedTotal;
 
     public RecordingSession Session { get; private set; }
     public bool IsRecording => Session != null;
@@ -33,19 +37,42 @@ public class ConcertRecorder : MonoBehaviour
     public event Action<RecordingSession> RecordingStarted;
     public event Action<RecordingSession> RecordingStopped;
 
-    private double Now => Time.unscaledTimeAsDouble - _startTime;
+    // Paused time is cut out, so the replay plays straight through a pause
+    private double Now => (_isPaused ? _pausedAt : Time.unscaledTimeAsDouble) - _startTime - _pausedTotal;
 
     private void OnEnable()
     {
         _concertSet.SetStarted += StartRecording;
         _concertSet.SetEnded += StopRecording;
+        if (_pause != null)
+        {
+            _pause.Paused += OnPaused;
+            _pause.Resumed += OnResumed;
+        }
     }
 
     private void OnDisable()
     {
         _concertSet.SetStarted -= StartRecording;
         _concertSet.SetEnded -= StopRecording;
+        if (_pause != null)
+        {
+            _pause.Paused -= OnPaused;
+            _pause.Resumed -= OnResumed;
+        }
         StopRecording();
+    }
+
+    private void OnPaused()
+    {
+        _isPaused = true;
+        _pausedAt = Time.unscaledTimeAsDouble;
+    }
+
+    private void OnResumed()
+    {
+        _isPaused = false;
+        _pausedTotal += Time.unscaledTimeAsDouble - _pausedAt;
     }
 
     public void StartRecording()
@@ -56,6 +83,7 @@ public class ConcertRecorder : MonoBehaviour
         }
 
         _startTime = Time.unscaledTimeAsDouble;
+        _pausedTotal = 0.0;
         _nextPoseSampleTime = 0.0;
         Array.Clear(_lastPoses, 0, _lastPoses.Length);
         Session = new RecordingSession(new RecordingHeader(DateTime.UtcNow, SceneManager.GetActiveScene().name, _poseSampleRate));
@@ -268,6 +296,7 @@ public class ConcertRecorder : MonoBehaviour
         _engagement = FindFirstObjectByType<EngagementHolder>();
         _cheer = FindFirstObjectByType<CrowdCheer>();
         _moshPit = FindFirstObjectByType<MoshPit>();
+        _pause = FindFirstObjectByType<GamePause>();
         if (Camera.main != null)
         {
             _head = Camera.main.transform;
