@@ -54,6 +54,8 @@ public class TrackPlayer : MonoBehaviour
     public IReadOnlyList<TrackNote> Notes => _notes;
     public double SongTime => _songTime;
     public bool IsPlaying => _isPlaying;
+    public bool IsApplauding { get; set; }
+    public float ApplauseSpeed { get; set; } = 1.0f;
     public float HitWindow => _hitWindow;
     public double CurrentBeat => _track.GetBeat(_songTime);
     public Track Track => _track;
@@ -372,6 +374,7 @@ public class TrackPlayer : MonoBehaviour
     {
         _audioSource.Stop();
         _isPlaying = false;
+        IsApplauding = false;
         _isPaused = false;
         _finished = false;
         _songTime = 0.0;

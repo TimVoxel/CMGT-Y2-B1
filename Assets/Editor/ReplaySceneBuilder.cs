@@ -107,6 +107,7 @@ public static class ReplaySceneBuilder
         var panel = controls.AddComponent<ReplayControlPanel>();
         SetReference(panel, "_dispatcher", dispatcher);
         SetReference(panel, "_sceneTransition", sceneTransition);
+        SetReference(controls.AddComponent<EyeLevelPlacement>(), "_player", Find<PlayerHeightProvider>());
 
         ReplaceWithSpectatorRig();
         AddTeleportSurfaces();
@@ -125,6 +126,7 @@ public static class ReplaySceneBuilder
         DestroyGameObjects<ConcertRevenue>();
         DestroyGameObjects<DebugTrackMenu>();
         DestroyGameObjects<LaneHitter>();
+        DestroyGameObjects<PlayerHeadStandIn>();
         DestroyComponents<AudienceGrowth>();
         DestroyComponents<NoteEngagementDriver>();
         DestroyComponents<LaneOffsetCalibrator>();

@@ -42,8 +42,6 @@ public class DebugSkipInput : MonoBehaviour
     [SerializeField] private InputAction _rightEndComboAction = new InputAction("Skip To End Combo Right", InputActionType.Button, "<XRController>{RightHand}/{TriggerButton}");
     [SerializeField] private float _endComboHoldDuration = 2.0f;
 
-    [SerializeField] private bool _allowInReleaseBuilds;
-
     private readonly HeldCombo _skipCombo = new HeldCombo();
     private readonly HeldCombo _endCombo = new HeldCombo();
 
@@ -70,10 +68,7 @@ public class DebugSkipInput : MonoBehaviour
 
     private void Update()
     {
-        if (!Debug.isDebugBuild && !_allowInReleaseBuilds)
-        {
-            return;
-        }
+        LogSkipToEndDiagnostics();
 
         if (_keyAction.WasPressedThisFrame()
             || _skipCombo.Update(_leftComboAction.IsPressed() && _rightComboAction.IsPressed(), _comboHoldDuration))
@@ -84,7 +79,32 @@ public class DebugSkipInput : MonoBehaviour
         if (_endKeyAction.WasPressedThisFrame()
             || _endCombo.Update(_leftEndComboAction.IsPressed() && _rightEndComboAction.IsPressed(), _endComboHoldDuration))
         {
+            Debug.Log($"[SkipDiag] Firing skip to end, listeners: {SkipToEndPressed?.GetInvocationList().Length ?? 0}");
             SkipToEndPressed?.Invoke();
+        }
+    }
+
+    private float _nextDiagnosticLogTime;
+
+    private void LogSkipToEndDiagnostics()
+    {
+        if (_endKeyAction.WasPressedThisFrame())
+        {
+            Debug.Log("[SkipDiag] F3 pressed");
+        }
+        if (_leftEndComboAction.WasPressedThisFrame())
+        {
+            Debug.Log($"[SkipDiag] Left trigger pressed on {_leftEndComboAction.activeControl?.path}");
+        }
+        if (_rightEndComboAction.WasPressedThisFrame())
+        {
+            Debug.Log($"[SkipDiag] Right trigger pressed on {_rightEndComboAction.activeControl?.path}");
+        }
+
+        if (Time.unscaledTime >= _nextDiagnosticLogTime)
+        {
+            _nextDiagnosticLogTime = Time.unscaledTime + 5.0f;
+            Debug.Log($"[SkipDiag] Bound controls: F3 {_endKeyAction.controls.Count}, left {_leftEndComboAction.controls.Count}, right {_rightEndComboAction.controls.Count}");
         }
     }
 }

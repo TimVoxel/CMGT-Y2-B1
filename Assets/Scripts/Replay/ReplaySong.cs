@@ -20,6 +20,7 @@ public class ReplaySong : MonoBehaviour
         _dispatcher.Subscribe<EmptyPressEvent>(OnEmptyPress);
         _dispatcher.Subscribe<LaneLayoutChangedEvent>(OnLaneLayoutChanged);
         _dispatcher.Ticked += AdvanceSong;
+        _dispatcher.Finished += OnReplayFinished;
     }
 
     private void OnDisable()
@@ -31,6 +32,7 @@ public class ReplaySong : MonoBehaviour
         _dispatcher.Unsubscribe<EmptyPressEvent>(OnEmptyPress);
         _dispatcher.Unsubscribe<LaneLayoutChangedEvent>(OnLaneLayoutChanged);
         _dispatcher.Ticked -= AdvanceSong;
+        _dispatcher.Finished -= OnReplayFinished;
     }
 
     private void OnSongStarted(SongStartedEvent songStarted)
@@ -50,10 +52,17 @@ public class ReplaySong : MonoBehaviour
     private void OnSongFinished(SongFinishedEvent songFinished)
     {
         _trackPlayer.ResetPlayer();
+        _trackPlayer.IsApplauding = true;
+    }
+
+    private void OnReplayFinished()
+    {
+        _trackPlayer.IsApplauding = false;
     }
 
     private void AdvanceSong()
     {
+        _trackPlayer.ApplauseSpeed = _dispatcher.IsPaused ? 0.0f : _dispatcher.Speed;
         if (_trackPlayer.IsPlaying)
         {
             _trackPlayer.SetExternalSongTime(CurrentSongTime, _dispatcher.IsPaused ? 0.0f : _dispatcher.Speed);

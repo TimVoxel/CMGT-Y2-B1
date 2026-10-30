@@ -14,7 +14,7 @@ public class CrowdCheer : MonoBehaviour
     [SerializeField] private bool _cheerOnReachingThreshold = true;
     [SerializeField] private float _cheerChancePerSecond = 0.1f;
     [SerializeField] private float _cooldown = 3.0f;
-    [SerializeField] private Vector2 _volumeRange = new Vector2(0.6f, 1.0f);
+    [SerializeField] private Vector2 _volumeRange = new Vector2(0.15f, 1.0f);
     [SerializeField] private Vector2 _pitchRange = new Vector2(0.95f, 1.05f);
     [SerializeField] private bool _cheersOnItsOwn = true;
 
@@ -69,10 +69,8 @@ public class CrowdCheer : MonoBehaviour
             return;
         }
 
-        var excitement = _engagement != null
-            ? Mathf.InverseLerp(_cheerEngagement, 1.0f, _engagement.Engagement)
-            : 1.0f;
-        Cheer(PickClipIndex(), Random.Range(_pitchRange.x, _pitchRange.y), Mathf.Lerp(_volumeRange.x, _volumeRange.y, excitement));
+        var engagement = _engagement != null ? _engagement.Engagement : 1.0f;
+        Cheer(PickClipIndex(), Random.Range(_pitchRange.x, _pitchRange.y), Mathf.Lerp(_volumeRange.x, _volumeRange.y, engagement));
     }
 
     public void Cheer(int clipIndex, float pitch, float volume)

@@ -114,6 +114,7 @@ public class ConcertSet : MonoBehaviour
     private IEnumerator Applause()
     {
         _trackPlayer.ResetPlayer();
+        _trackPlayer.IsApplauding = true;
         if (_cheer != null)
         {
             _cheer.Cheer();
@@ -126,6 +127,7 @@ public class ConcertSet : MonoBehaviour
     private void EndApplause()
     {
         _applause = null;
+        _trackPlayer.IsApplauding = false;
         if (_songIndex + 1 < _setList.Length)
         {
             _engagement.Set(_engagement.Engagement * _engagementKept);
@@ -149,6 +151,7 @@ public class ConcertSet : MonoBehaviour
         // Paused: leave it be, the pause menu would end up on top of the end screen with the game still frozen
         if (_hasEnded || Time.timeScale == 0.0f)
         {
+            Debug.Log($"[SkipDiag] Skip to end ignored: hasEnded {_hasEnded}, timeScale {Time.timeScale}");
             return;
         }
 
