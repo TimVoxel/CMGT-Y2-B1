@@ -4456,6 +4456,7 @@ MonoBehaviour:
   _cheerChancePerSecond: 0.1
   _cooldown: 3
   _volumeRange: {x: 0.15, y: 1}
+  _loudCheerVolume: 1.6
   _pitchRange: {x: 0.95, y: 1.05}
   _cheersOnItsOwn: 1
 --- !u!82 &518397766
@@ -4471,7 +4472,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.63
+  m_Volume: 0.11
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -4679,6 +4680,39 @@ MonoBehaviour:
   _spatialBlend: 1
   _minDistance: 5
   _maxDistance: 40
+--- !u!114 &518397799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1600383732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c84f1e07a3d2496fb5e80d7c21a96b3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CoolPoseDetector
+  _concertSet: {fileID: 1533948921}
+  _engagement: {fileID: 741435186}
+  _cheer: {fileID: 518397765}
+  _trackPlayer: {fileID: 1078981824}
+  _head: {fileID: 1991836184}
+  _leftHand: {fileID: 1248259874}
+  _rightHand: {fileID: 943565446}
+  _engagementBoost: 0.5
+  _charismaBoost: 0.5
+  _holdDuration: 0.2
+  _cooldown: 20
+  _hapticAmplitude: 0.8
+  _hapticDuration: 0.2
+  _lookingUpAngle: 50
+  _charismaPerHitLookingUp: 0.2
+  _charismaPerHitOneHandUp: 0.08
+  _handUpAboveHead: 0.1
+  _lookingDownAngle: 20
+  _minSideDistance: 0.3
+  _maxForwardDistance: 0.35
+  _sideHeightRange: {x: -0.6, y: 0.3}
 --- !u!1001 &519734687
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7318,6 +7352,7 @@ GameObject:
   - component: {fileID: 741435185}
   - component: {fileID: 741435186}
   - component: {fileID: 741435187}
+  - component: {fileID: 741435199}
   m_Layer: 0
   m_Name: Engagement holder
   m_TagString: Untagged
@@ -7355,6 +7390,10 @@ MonoBehaviour:
   _startEngagement: 0.1
   _decayPerSecond: 0.04
   _floor: 0
+  _headMotion: {fileID: 741435199}
+  _maxCharismaGainMultiplier: 2
+  _minCharismaPenaltyMultiplier: 0.5
+  _charismaBoostDecayPerSecond: 0.1
 --- !u!114 &741435187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7376,6 +7415,21 @@ MonoBehaviour:
   _referenceNotesPerSecond: 1.5
   _tempoInfluence: 0.4
   _densityInfluence: 0.6
+--- !u!114 &741435199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741435184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1f4d92e7b34c58b0c2d8e57f19a36e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeadMotionTracker
+  _angularSpeedRange: {x: 60, y: 200}
+  _linearSpeedRange: {x: 0.3, y: 1}
+  _smoothTime: 0.75
 --- !u!114 &754122136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11602,6 +11656,7 @@ GameObject:
   - component: {fileID: 1600383733}
   - component: {fileID: 1600383734}
   - component: {fileID: 731900013}
+  - component: {fileID: 518397799}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged

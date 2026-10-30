@@ -132,7 +132,7 @@ public class AudiencePointing : MonoBehaviour
             Random.Range(_reactionPitchRange.x, _reactionPitchRange.y));
         if (_addsEngagement)
         {
-            _engagement.Add(_engagementPerReaction);
+            _engagement.Add(_engagementPerReaction * _engagement.CharismaGainMultiplier);
         }
     }
 

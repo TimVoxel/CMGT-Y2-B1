@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-// Whole-crowd cheering from one AudioSource, so cheers never pile on top of each other.
-// Cheers when engagement first reaches the threshold, then now and again while it stays up there.
+// Whole-crowd cheering. Cheers on its own when engagement first reaches the threshold, then now and again while it
+// stays up there, never over a cheer still playing. A requested cheer plays alongside one still playing instead of cutting it off.
 public class CrowdCheer : MonoBehaviour
 {
     [SerializeField] private EngagementHolder _engagement;
@@ -16,11 +17,14 @@ public class CrowdCheer : MonoBehaviour
     [SerializeField] private float _cooldown = 3.0f;
     [SerializeField] private Vector2 _volumeRange = new Vector2(0.15f, 1.0f);
     [SerializeField] private Vector2 _pitchRange = new Vector2(0.95f, 1.05f);
+    [SerializeField] private float _fadeInDuration = 0.3f;
     [SerializeField] private bool _cheersOnItsOwn = true;
 
     private float _nextCheerAllowedTime;
     private int _lastClipIndex = -1;
     private bool _wasAboveThreshold;
+    private readonly List<AudioSource> _sources = new List<AudioSource>();
+    private readonly Dictionary<AudioSource, float> _targetVolumes = new Dictionary<AudioSource, float>();
 
     public float CheerEngagement => _cheerEngagement;
 
@@ -35,10 +39,69 @@ public class CrowdCheer : MonoBehaviour
         }
         _source.playOnAwake = false;
         _source.loop = false;
+        _sources.Add(_source);
+    }
+
+    private bool IsAnyCheerPlaying()
+    {
+        foreach (var source in _sources)
+        {
+            if (source.isPlaying)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private AudioSource GetFreeSource()
+    {
+        foreach (var source in _sources)
+        {
+            if (!source.isPlaying)
+            {
+                return source;
+            }
+        }
+
+        var extraSource = gameObject.AddComponent<AudioSource>();
+        extraSource.playOnAwake = false;
+        extraSource.loop = false;
+        extraSource.outputAudioMixerGroup = _source.outputAudioMixerGroup;
+        extraSource.spatialBlend = _source.spatialBlend;
+        extraSource.rolloffMode = _source.rolloffMode;
+        extraSource.minDistance = _source.minDistance;
+        extraSource.maxDistance = _source.maxDistance;
+        _sources.Add(extraSource);
+        return extraSource;
+    }
+
+    public void CheerAtFullVolume()
+    {
+        if (_cheerClips == null || _cheerClips.Length == 0)
+        {
+            return;
+        }
+
+        Cheer(PickClipIndex(), Random.Range(_pitchRange.x, _pitchRange.y), 1.0f);
+    }
+
+    private void FadeInCheers()
+    {
+        foreach (var source in _sources)
+        {
+            if (_targetVolumes.TryGetValue(source, out var targetVolume))
+            {
+                var fadeStep = targetVolume * Time.deltaTime / Mathf.Max(1e-4f, _fadeInDuration);
+                source.volume = Mathf.MoveTowards(source.volume, targetVolume, fadeStep);
+            }
+        }
     }
 
     private void Update()
     {
+        FadeInCheers();
+
         if (!_cheersOnItsOwn)
         {
             return;
@@ -50,7 +113,7 @@ public class CrowdCheer : MonoBehaviour
         var justReached = isAbove && !_wasAboveThreshold;
         _wasAboveThreshold = isAbove;
 
-        if (!isAbove || _source.isPlaying || Time.time < _nextCheerAllowedTime)
+        if (!isAbove || IsAnyCheerPlaying() || Time.time < _nextCheerAllowedTime)
         {
             return;
         }
@@ -76,11 +139,13 @@ public class CrowdCheer : MonoBehaviour
     public void Cheer(int clipIndex, float pitch, float volume)
     {
         var clip = _cheerClips[clipIndex];
-        _source.Stop();
-        _source.clip = clip;
-        _source.pitch = pitch;
-        _source.volume = volume;
-        _source.Play();
+        var source = GetFreeSource();
+        source.clip = clip;
+        source.pitch = pitch;
+        source.volume = 0.0f;
+        _targetVolumes[source] = volume;
+        source.Play();
+
         _lastClipIndex = clipIndex;
         Cheered?.Invoke(clipIndex, pitch, volume);
 

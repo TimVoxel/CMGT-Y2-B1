@@ -10,9 +10,19 @@ public class EngagementHolder : MonoBehaviour
     // Never decays below this
     [SerializeField, Range(0.0f, 1.0f)] private float _floor = 0.0f;
 
+    [Header("Charisma")]
+    [SerializeField] private HeadMotionTracker _headMotion;
+    [SerializeField, Min(1.0f)] private float _maxCharismaGainMultiplier = 2.0f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _minCharismaPenaltyMultiplier = 0.5f;
+    [SerializeField] private float _charismaBoostDecayPerSecond = 0.1f;
+
     private float _engagement;
+    private float _charismaBoost;
 
     public float Engagement => _engagement;
+    public float Charisma => Mathf.Clamp01((_headMotion != null ? _headMotion.Intensity : 0.0f) + _charismaBoost);
+    public float CharismaGainMultiplier => Mathf.Lerp(1.0f, _maxCharismaGainMultiplier, Charisma);
+    public float CharismaPenaltyMultiplier => Mathf.Lerp(1.0f, _minCharismaPenaltyMultiplier, Charisma);
 
     public event Action<float> Changed;
 
@@ -23,6 +33,8 @@ public class EngagementHolder : MonoBehaviour
 
     private void Update()
     {
+        _charismaBoost = Mathf.MoveTowards(_charismaBoost, 0.0f, _charismaBoostDecayPerSecond * Time.deltaTime);
+
         if (_engagement > _floor)
         {
             Set(Mathf.Max(_floor, _engagement - _decayPerSecond * Time.deltaTime));
@@ -33,6 +45,11 @@ public class EngagementHolder : MonoBehaviour
     public void ResetEngagement()
     {
         Set(_startEngagement);
+    }
+
+    public void AddCharisma(float amount)
+    {
+        _charismaBoost = Mathf.Clamp01(_charismaBoost + amount);
     }
 
     public void Add(float amount)

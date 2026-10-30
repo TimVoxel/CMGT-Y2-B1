@@ -136,6 +136,8 @@ public static class ReplaySceneBuilder
         DestroyGameObjects<PlayerHeadStandIn>();
         DestroyComponents<AudienceGrowth>();
         DestroyComponents<NoteEngagementDriver>();
+        DestroyComponents<HeadMotionTracker>();
+        DestroyComponents<CoolPoseDetector>();
         DestroyComponents<LaneOffsetCalibrator>();
     }
 

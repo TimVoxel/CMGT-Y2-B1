@@ -28,12 +28,12 @@ public class NoteEngagementDriver : MonoBehaviour
 
     private void OnNoteHit(TrackNote note, float accuracy)
     {
-        _engagement.Add(Mathf.Lerp(_sloppyHitGain, _perfectHitGain, accuracy) * TrackScale);
+        _engagement.Add(Mathf.Lerp(_sloppyHitGain, _perfectHitGain, accuracy) * TrackScale * _engagement.CharismaGainMultiplier);
     }
 
     private void OnNoteMissed(TrackNote note)
     {
-        _engagement.Add(-_missPenalty * TrackScale);
+        _engagement.Add(-_missPenalty * TrackScale * _engagement.CharismaPenaltyMultiplier);
     }
 
     // Per-note multiplier. The engagement a song builds per second goes as
