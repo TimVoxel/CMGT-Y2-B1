@@ -63,6 +63,9 @@ public class CrowdEmojis : MonoBehaviour
     [SerializeField] private float _spamSpread = 0.15f;
     [SerializeField] private int _maxSpams = 3;
 
+    [Header("Excited by being pointed at")]
+    [SerializeField] private Vector2Int _excitedBurstCountRange = new Vector2Int(3, 6);
+
     [Header("Skeptics")]
     [SerializeField] private Sprite[] _skepticalSprites;
     [SerializeField] private int _missStreakForSkeptics = 5;
@@ -188,12 +191,36 @@ public class CrowdEmojis : MonoBehaviour
         }
     }
 
+    public void SendExcitedBurst(AudienceMember member)
+    {
+        CollectMoodSprites(1.0f);
+        if (_moodSprites.Count == 0)
+        {
+            return;
+        }
+
+        var sprite = _moodSprites[Random.Range(0, _moodSprites.Count)];
+        Spawn(member, sprite);
+        _spams.Add(new Spam
+        {
+            Member = member,
+            Sprite = sprite,
+            Remaining = Random.Range(_excitedBurstCountRange.x, _excitedBurstCountRange.y + 1),
+            UntilNext = Random.Range(_spamIntervalRange.x, _spamIntervalRange.y),
+        });
+    }
+
     private void CollectMoodSprites()
+    {
+        CollectMoodSprites(_engagement.Engagement);
+    }
+
+    private void CollectMoodSprites(float engagement)
     {
         _moodSprites.Clear();
         foreach (var tier in _tiers)
         {
-            if (tier.Contains(_engagement.Engagement) && tier.Sprites != null)
+            if (tier.Contains(engagement) && tier.Sprites != null)
             {
                 _moodSprites.AddRange(tier.Sprites);
             }

@@ -4647,6 +4647,57 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!114 &518397779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 518397762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d27c5e4b18f4a6c8e3f71a6d05b2c94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudiencePointing
+  _audience: {fileID: 518397764}
+  _engagement: {fileID: 741435186}
+  _emojis: {fileID: 731900002}
+  _leftHand: {fileID: 794620961}
+  _rightHand: {fileID: 2091900655}
+  _maxAimAngle: 10
+  _aimDuration: 0.2
+  _excitedDuration: 2
+  _addsEngagement: 0
+  _engagementPerReaction: 0.01
+  _hapticAmplitude: 0.5
+  _hapticDuration: 0.08
+  _reactionSounds: {fileID: 518397789}
+  _reactionClips:
+  - {fileID: 8300000, guid: 049f9916aae04efbbde1cd316c017e04, type: 3}
+  - {fileID: 8300000, guid: 5dc197175f99456b88f8f6dd5dfd8a3b, type: 3}
+  - {fileID: 8300000, guid: 1f7162bad4c74d0bb08bbeababf4c7fd, type: 3}
+  - {fileID: 8300000, guid: 9a94eaeab0a84706b33586034133809a, type: 3}
+  - {fileID: 8300000, guid: e77ac67765d04965a6b7d3525f9ae591, type: 3}
+  - {fileID: 8300000, guid: 4be838fc2c604d00a080e734127b3989, type: 3}
+  - {fileID: 8300000, guid: e246b7fee4da4bd7894e112938670130, type: 3}
+  _reactionVolumeRange: {x: 0.2, y: 0.4}
+  _reactionPitchRange: {x: 0.95, y: 1.05}
+--- !u!114 &518397789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 518397762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b6e8f13c7d94a05a1e6f94c3d7082bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioSourcePool
+  _initialSize: 4
+  _spatialBlend: 1
+  _minDistance: 5
+  _maxDistance: 40
 --- !u!1 &518397762
 GameObject:
   m_ObjectHideFlags: 0
@@ -4660,6 +4711,8 @@ GameObject:
   - component: {fileID: 518397765}
   - component: {fileID: 518397766}
   - component: {fileID: 518397767}
+  - component: {fileID: 518397779}
+  - component: {fileID: 518397789}
   m_Layer: 0
   m_Name: Audience
   m_TagString: Untagged
