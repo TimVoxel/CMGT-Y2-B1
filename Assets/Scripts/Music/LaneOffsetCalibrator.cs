@@ -4,6 +4,7 @@ public class LaneOffsetCalibrator : MonoBehaviour
 {
     [SerializeField] private TrackPlayer _trackPlayer;
     [SerializeField] private PlayerHeightProvider _heightProvider;
+    [SerializeField] private RecalibrateHeightInput _recalibrateInput;
 
     [SerializeField, Range(0.0f, 1.0f)] private float _heightFraction = 0.5f;
     [SerializeField] private float _referenceHeight = 1.75f;
@@ -15,15 +16,24 @@ public class LaneOffsetCalibrator : MonoBehaviour
     private bool _pending = true;
     private float _settleStartHeight;
     private float _settledFor;
+    private bool _hasLoggedLowEyes;
 
     private void OnEnable()
     {
         _trackPlayer.Started += OnTrackStarted;
+        if (_recalibrateInput != null)
+        {
+            _recalibrateInput.RecalibrateRequested += Calibrate;
+        }
     }
 
     private void OnDisable()
     {
         _trackPlayer.Started -= OnTrackStarted;
+        if (_recalibrateInput != null)
+        {
+            _recalibrateInput.RecalibrateRequested -= Calibrate;
+        }
     }
 
     private void OnTrackStarted()
@@ -34,6 +44,7 @@ public class LaneOffsetCalibrator : MonoBehaviour
     public void Calibrate()
     {
         _pending = true;
+        _hasLoggedLowEyes = false;
         _settledFor = 0.0f;
         _settleStartHeight = float.NegativeInfinity;
     }
@@ -46,6 +57,11 @@ public class LaneOffsetCalibrator : MonoBehaviour
         }
 
         var eyeHeight = _heightProvider.EyeHeight;
+        if (eyeHeight < _minEyeHeight && !_hasLoggedLowEyes)
+        {
+            _hasLoggedLowEyes = true;
+            Debug.Log($"[Height] Waiting: eye height {eyeHeight:0.00} m is below the {_minEyeHeight:0.00} m minimum");
+        }
         if (eyeHeight < _minEyeHeight || Mathf.Abs(eyeHeight - _settleStartHeight) > _settleTolerance)
         {
             _settleStartHeight = eyeHeight;
@@ -60,8 +76,10 @@ public class LaneOffsetCalibrator : MonoBehaviour
         }
 
         _pending = false;
-        _trackPlayer.SetHitLineHeight(_heightProvider.FloorY + _heightProvider.HeadTop * _heightFraction);
+        var hitLineHeight = _heightProvider.HeadTop * _heightFraction;
+        _trackPlayer.SetHitLineHeight(_heightProvider.FloorY + hitLineHeight);
         _trackPlayer.HorizontalHeightFactor = GetExtraLaneSpacing(_heightProvider.HeadTop);
+        Debug.Log($"[Height] Fitted to eye height {eyeHeight:0.00} m: playing surface at {hitLineHeight:0.00} m");
     }
 
     private float GetExtraLaneSpacing(float height)
@@ -76,6 +94,7 @@ public class LaneOffsetCalibrator : MonoBehaviour
     {
         _trackPlayer = FindFirstObjectByType<TrackPlayer>();
         _heightProvider = FindFirstObjectByType<PlayerHeightProvider>();
+        _recalibrateInput = FindFirstObjectByType<RecalibrateHeightInput>();
     }
 #endif
 }

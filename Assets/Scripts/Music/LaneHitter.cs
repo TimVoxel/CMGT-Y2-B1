@@ -1,26 +1,51 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics;
 
-// Put on a fingertip / controller tip. Anything with this component can press a LaneHitZone.
+// Put on a fingertip / controller tip. Anything with this component can strike a LaneHitZone, which tracks it by position.
 [RequireComponent(typeof(Rigidbody))]
 public class LaneHitter : MonoBehaviour
 {
     [SerializeField] private float _radius = 0.015f;
 
-    // Optional, found in parents if left empty (controllers have one, tracked hands don't)
     [SerializeField] private HapticImpulsePlayer _haptics;
-    [SerializeField] private float _hitAmplitude = 0.7f;
-    [SerializeField] private float _hitDuration = 0.08f;
-    [SerializeField] private float _missAmplitude = 0.2f;
-    [SerializeField] private float _missDuration = 0.04f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _baseAmplitude = 0.4f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _extraAmplitude = 0.6f;
+    [SerializeField] private float _baseDuration = 0.05f;
+    [SerializeField] private float _extraDuration = 0.07f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _strikeSpeedShare = 0.25f;
+    [SerializeField] private Vector2 _strikeSpeedRange = new Vector2(0.2f, 1.5f);
+
+    private static readonly List<LaneHitter> _active = new List<LaneHitter>();
 
     private Vector3 _lastPosition;
 
+    public static IReadOnlyList<LaneHitter> Active => _active;
+    public static event System.Action Struck;
+
     public Vector3 Velocity { get; private set; }
+    public float LastStrikeTime { get; private set; } = float.NegativeInfinity;
+    public float LastStrikeWindUpHeight { get; private set; }
+
+    public void NotifyStruck(float windUpHeight)
+    {
+        LastStrikeTime = Time.time;
+        LastStrikeWindUpHeight = windUpHeight;
+        Struck?.Invoke();
+    }
+
+    private void OnEnable()
+    {
+        _active.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        _active.Remove(this);
+    }
 
     private void Awake()
     {
-        // Kinematic so tracking drives it, but it still lets trigger events fire
         var body = GetComponent<Rigidbody>();
         body.isKinematic = true;
         body.useGravity = false;
@@ -52,20 +77,17 @@ public class LaneHitter : MonoBehaviour
         _lastPosition = position;
     }
 
-    public void PlayHaptics(bool hit)
+    public void PlayHaptics(float accuracy, float strikeSpeed)
     {
         if (_haptics == null)
         {
             return;
         }
 
-        if (hit)
-        {
-            _haptics.SendHapticImpulse(_hitAmplitude, _hitDuration);
-        }
-        else
-        {
-            _haptics.SendHapticImpulse(_missAmplitude, _missDuration);
-        }
+        accuracy = Mathf.Clamp01(accuracy);
+        var accuracyAmplitude = _baseAmplitude + _extraAmplitude * accuracy;
+        var speedAmplitude = (_baseAmplitude + _extraAmplitude) * Mathf.InverseLerp(_strikeSpeedRange.x, _strikeSpeedRange.y, strikeSpeed);
+        var amplitude = Mathf.Clamp01(Mathf.Lerp(accuracyAmplitude, speedAmplitude, _strikeSpeedShare));
+        _haptics.SendHapticImpulse(amplitude, _baseDuration + _extraDuration * accuracy);
     }
 }

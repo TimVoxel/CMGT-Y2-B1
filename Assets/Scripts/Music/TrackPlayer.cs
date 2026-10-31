@@ -20,6 +20,7 @@ public class TrackPlayer : MonoBehaviour
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private bool _playOnStart = true;
     [SerializeField] private float _startDelay = 0.1f;
+    [SerializeField] private bool _keepInstrumentForPredictedStrikes = true;
 
     [SerializeField] private float _hitWindow = 0.15f;
     [SerializeField, FormerlySerializedAs("_laneButtonPrefab")] private GameObject _laneMarkerPrefab;
@@ -27,6 +28,8 @@ public class TrackPlayer : MonoBehaviour
 
     [SerializeField] private Material[] _noteMaterials;
     [SerializeField] private Material[] _noteButtonMaterials;
+
+    [SerializeField] private GamePause _pause;
 
     private readonly List<GameObject> _laneMarkers = new List<GameObject>();
 
@@ -38,12 +41,19 @@ public class TrackPlayer : MonoBehaviour
     public event Action LayoutChanged;
 
     private const float MaxReplayAudioDrift = 0.1f;
+    private const float InstrumentFadeLeadSeconds = SyncedStemPlayback.MuteFadeSeconds + 0.02f;
 
+    private SyncedStemPlayback _stems;
+    private bool _isWaitingForAudio;
+    private bool _wasLastNoteHit = true;
+    private int _predictedStrikeRecordIndex = -1;
+    private float _replaySpeed;
     private double _startDspTime;
     private double _lastDspTime;
     private double _songTime;
     private bool _isExternallyClocked;
     private bool _isPlaying;
+    private bool _isPaused;
     private bool _finished;
     private int _processedNoteIndex;
 
@@ -51,6 +61,9 @@ public class TrackPlayer : MonoBehaviour
     public IReadOnlyList<TrackNote> Notes => _notes;
     public double SongTime => _songTime;
     public bool IsPlaying => _isPlaying;
+    public bool IsApplauding { get; set; }
+    public float ApplauseSpeed { get; set; } = 1.0f;
+    public float LastStrikeWindUpHeight { get; private set; }
     public float HitWindow => _hitWindow;
     public double CurrentBeat => _track.GetBeat(_songTime);
     public Track Track => _track;
@@ -74,6 +87,7 @@ public class TrackPlayer : MonoBehaviour
     public Quaternion LaneRotation => _spawnContainer.rotation;
 
     public Vector3 HitLineCenter => _spawnContainer.TransformPoint(Vector3.forward * _finalPosOffset);
+    public Vector3 NoteTravelDirection => (HitLineCenter - _spawnContainer.position).normalized;
     public double SongTimeToDspTime(double songTime) => _startDspTime + songTime;
 
     private void Awake()
@@ -82,10 +96,63 @@ public class TrackPlayer : MonoBehaviour
         {
             _audioSource = gameObject.AddComponent<AudioSource>();
         }
-        _audioSource.playOnAwake = false;
+        _stems = new SyncedStemPlayback(_audioSource);
 
         SpawnLaneMarkers();
         ResetPlayer();
+    }
+
+    private void OnEnable()
+    {
+        if (_pause != null)
+        {
+            _pause.Paused += OnPaused;
+            _pause.Resumed += OnResumed;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_pause != null)
+        {
+            _pause.Paused -= OnPaused;
+            _pause.Resumed -= OnResumed;
+        }
+    }
+
+    private void OnPaused()
+    {
+        if (!_isPlaying || _isExternallyClocked)
+        {
+            return;
+        }
+        _isPaused = true;
+        _stems.Stop();
+    }
+
+    private void OnResumed()
+    {
+        if (!_isPaused)
+        {
+            return;
+        }
+        _isPaused = false;
+        _lastDspTime = AudioSettings.dspTime;
+
+        if (_songTime < 0.0)
+        {
+            _startDspTime = AudioSettings.dspTime - _songTime;
+            _stems.Schedule(_startDspTime, 0.0, 1.0f);
+        }
+        else if (_songTime < _stems.LengthSeconds)
+        {
+            _startDspTime = _stems.ScheduleSoon(_songTime, 1.0f) - _songTime;
+            _songTime = AudioSettings.dspTime - _startDspTime;
+        }
+        else
+        {
+            _startDspTime = AudioSettings.dspTime - _songTime;
+        }
     }
 
     private void SpawnLaneMarkers()
@@ -141,10 +208,11 @@ public class TrackPlayer : MonoBehaviour
         }
     }
 
-    public bool TryHit(int laneIndex, out float accuracy)
+    public bool TryHit(int laneIndex, float windUpHeight, out float accuracy)
     {
         accuracy = 0.0f;
-        if (!_isPlaying)
+        LastStrikeWindUpHeight = windUpHeight;
+        if (!_isPlaying || _isPaused)
         {
             return false;
         }
@@ -177,6 +245,8 @@ public class TrackPlayer : MonoBehaviour
     private void RemoveHitNote(TrackNote note, float accuracy)
     {
         _notes.Remove(note);
+        _wasLastNoteHit = true;
+        _stems.SetInstrumentMuted(false);
         NoteHit?.Invoke(note, accuracy);
         note.Destroy();
     }
@@ -184,6 +254,8 @@ public class TrackPlayer : MonoBehaviour
     private void RemoveMissedNote(TrackNote note)
     {
         _notes.Remove(note);
+        _wasLastNoteHit = false;
+        _stems.SetInstrumentMuted(true);
         NoteMissed?.Invoke(note);
         if (note.NoteIndex < _laneHitZones.Length)
         {
@@ -205,15 +277,25 @@ public class TrackPlayer : MonoBehaviour
         ResetPlayer();
 
         _isExternallyClocked = false;
-        _startDspTime = AudioSettings.dspTime + _startDelay;
-        _lastDspTime = AudioSettings.dspTime;
-        _songTime = -_startDelay;
+        _stems.SetClips(_track);
+        _isWaitingForAudio = true;
+        TryStartOnceAudioIsLoaded();
+    }
 
-        _audioSource.clip = _track.Clip;
-        if (_track.Clip != null)
+    private void TryStartOnceAudioIsLoaded()
+    {
+        if (!_stems.IsAudioLoaded || (_pause != null && _pause.IsPaused))
         {
-            _audioSource.PlayScheduled(_startDspTime);
+            return;
         }
+        _isWaitingForAudio = false;
+        var firstNoteTime = _track.NoteCount > 0 ? _track.GetNoteTime(0) : 0.0f;
+        var leadIn = Mathf.Max(_startDelay, _spawnTimeOffset - firstNoteTime);
+        _startDspTime = AudioSettings.dspTime + leadIn;
+        _lastDspTime = AudioSettings.dspTime;
+        _songTime = -leadIn;
+
+        _stems.Schedule(_startDspTime, 0.0, 1.0f);
         _isPlaying = true;
         Started?.Invoke();
     }
@@ -239,7 +321,8 @@ public class TrackPlayer : MonoBehaviour
         SpawnLaneMarkers();
 
         _isExternallyClocked = true;
-        _audioSource.clip = _track.Clip;
+        _stems.SetClips(_track);
+        _replaySpeed = 0.0f;
         _isPlaying = true;
         SetExternalSongTime(songTime, 1.0f);
         Started?.Invoke();
@@ -250,25 +333,21 @@ public class TrackPlayer : MonoBehaviour
         _songTime = songTime;
         _startDspTime = AudioSettings.dspTime - songTime;
 
-        var clip = _audioSource.clip;
-        var audible = clip != null && playbackSpeed > 0.0f && songTime >= 0.0 && songTime < clip.length;
-        if (!audible)
+        var audible = playbackSpeed > 0.0f && songTime >= 0.0 && songTime < _stems.LengthSeconds;
+        if (!audible || !_stems.IsAudioLoaded)
         {
-            if (_audioSource.isPlaying)
+            if (_stems.IsPlaying)
             {
-                _audioSource.Pause();
+                _stems.Stop();
             }
             return;
         }
 
-        _audioSource.pitch = playbackSpeed;
-        if (!_audioSource.isPlaying || Mathf.Abs(_audioSource.time - (float)songTime) > MaxReplayAudioDrift)
+        var hasDrifted = Mathf.Abs(_stems.PositionSeconds - (float)songTime) > MaxReplayAudioDrift;
+        if (!_stems.IsPlaying || playbackSpeed != _replaySpeed || hasDrifted)
         {
-            _audioSource.time = (float)songTime;
-            if (!_audioSource.isPlaying)
-            {
-                _audioSource.Play();
-            }
+            _replaySpeed = playbackSpeed;
+            _stems.ScheduleInStepWithClock(songTime, playbackSpeed);
         }
     }
 
@@ -312,8 +391,13 @@ public class TrackPlayer : MonoBehaviour
 
     public void ResetPlayer()
     {
-        _audioSource.Stop();
+        _stems.Stop();
+        _isWaitingForAudio = false;
+        _wasLastNoteHit = true;
+        _predictedStrikeRecordIndex = -1;
         _isPlaying = false;
+        IsApplauding = false;
+        _isPaused = false;
         _finished = false;
         _songTime = 0.0;
         _processedNoteIndex = -1;
@@ -327,10 +411,17 @@ public class TrackPlayer : MonoBehaviour
 
     private void Update()
     {
-        if (!_isPlaying)
+        if (_isWaitingForAudio)
+        {
+            TryStartOnceAudioIsLoaded();
+        }
+
+        if (!_isPlaying || _isPaused)
         {
             return;
         }
+
+        _stems.Tick();
 
         if (!_isExternallyClocked)
         {
@@ -365,13 +456,48 @@ public class TrackPlayer : MonoBehaviour
             }
         }
 
+        _stems.SetInstrumentMuted(!ShouldInstrumentBeAudible());
+
         if (!_finished && _songTime >= _track.Duration
             && _processedNoteIndex >= _track.NoteCount - 1 && _notes.Count == 0
-            && !_audioSource.isPlaying)
+            && !_stems.IsPlaying)
         {
             _finished = true;
             Finished?.Invoke();
         }
+    }
+
+    private bool ShouldInstrumentBeAudible()
+    {
+        if (_notes.Count == 0)
+        {
+            return _wasLastNoteHit;
+        }
+        var nextNote = _notes[0];
+        var soundStartTime = nextNote.HitTime - _track.TimingOffset;
+        if (_songTime < soundStartTime - InstrumentFadeLeadSeconds)
+        {
+            return _wasLastNoteHit;
+        }
+        if (nextNote.RecordIndex == _predictedStrikeRecordIndex)
+        {
+            return true;
+        }
+        if (_keepInstrumentForPredictedStrikes && IsStrikePredicted(nextNote))
+        {
+            _predictedStrikeRecordIndex = nextNote.RecordIndex;
+            return true;
+        }
+        return false;
+    }
+
+    private bool IsStrikePredicted(TrackNote note)
+    {
+        if (note.NoteIndex >= _laneHitZones.Length)
+        {
+            return false;
+        }
+        return _laneHitZones[note.NoteIndex].IsStrikeExpectedWithin(note.TimeLeft - _hitWindow, note.TimeLeft + _hitWindow);
     }
 
     private void UpdateSongTime()
@@ -413,6 +539,13 @@ public class TrackPlayer : MonoBehaviour
         var rightOffset = (-center + (float)noteIndex) * HorizontalOffsetPerNote * Vector3.right;
         return Vector3.zero + rightOffset + Vector3.forward * _finalPosOffset;
     }
+
+#if UNITY_EDITOR
+    private void Reset()
+    {
+        _pause = FindFirstObjectByType<GamePause>();
+    }
+#endif
 
     private void OnDrawGizmos()
     {

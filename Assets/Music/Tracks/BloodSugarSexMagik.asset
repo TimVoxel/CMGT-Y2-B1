@@ -15,7 +15,7 @@ MonoBehaviour:
   _clip: {fileID: 8300000, guid: 784763278ff429e42935783c53e8d212, type: 3}
   _bpm: 73.51
   _timingOffset: 0.1
-  _firstBeatTime: 0.663
+  _firstBeatTime: 0.763
   _halfTimeClaps: 0
   _isMetal: 0
   _notes:

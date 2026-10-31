@@ -1,17 +1,12 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
-// Runs the show: start screen, every song in the set list with applause in between, then the end screen.
-// Builds its own world-space panels like DebugTrackMenu, so place this object where the panel should appear.
+// Runs the show: every song in the set list with applause in between, then the end. ConcertMenu is the UI on top.
 public class ConcertSet : MonoBehaviour
 {
     [SerializeField] private TrackPlayer _trackPlayer;
     [SerializeField] private EngagementHolder _engagement;
     [SerializeField] private CrowdCheer _cheer;
-    [SerializeField] private ConcertRevenue _revenue;
     [SerializeField] private SceneTransition _sceneTransition;
     [SerializeField] private RecordingSessionWriter _recordingWriter;
     [SerializeField] private string _replaySceneName = "ReplayScene";
@@ -20,25 +15,18 @@ public class ConcertSet : MonoBehaviour
     [SerializeField] private float _applauseDuration = 5.0f;
     [SerializeField, Range(0.0f, 1.0f)] private float _engagementKept = 0.5f;
 
-    [Header("UI")]
-    [SerializeField] private Vector2 _buttonSize = new Vector2(800.0f, 140.0f);
-    [SerializeField] private float _spacing = 50.0f;
-    [SerializeField] private float _metersPerUnit = 0.001f;
-    [SerializeField] private float _fontSize = 64.0f;
-    [SerializeField] private Color _panelColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
-    [SerializeField] private Color _buttonColor = new Color(0.2f, 0.2f, 0.25f, 1.0f);
-
-    [Header("Debug (editor and development builds only)")]
-    [SerializeField] private Key _skipSongKey = Key.F2;
+    [Header("Debug")]
+    [SerializeField] private DebugSkipInput _debugSkip;
     [SerializeField] private Vector2 _skipEngagementRange = new Vector2(0.1f, 0.6f);
 
-    private GameObject _startPanel;
-    private GameObject _endPanel;
-    private Button _revenueButton;
-    private TextMeshProUGUI _revenueText;
-    private Button _watchReplayButton;
     private int _songIndex = -1;
+    private bool _hasEnded;
+    private int _startedFrame = -1;
     private Coroutine _applause;
+    private bool _isLoadingReplay;
+
+    public bool CanRecord => _recordingWriter != null;
+    public bool HasStarted => _songIndex >= 0;
 
     public event System.Action SetStarted;
     public event System.Action SetEnded;
@@ -46,33 +34,46 @@ public class ConcertSet : MonoBehaviour
     private void OnEnable()
     {
         _trackPlayer.Finished += OnSongFinished;
+        if (_debugSkip != null)
+        {
+            _debugSkip.SkipPressed += DebugSkipSong;
+            _debugSkip.SkipToEndPressed += DebugSkipToEnd;
+        }
     }
 
     private void OnDisable()
     {
         _trackPlayer.Finished -= OnSongFinished;
+        if (_debugSkip != null)
+        {
+            _debugSkip.SkipPressed -= DebugSkipSong;
+            _debugSkip.SkipToEndPressed -= DebugSkipToEnd;
+        }
     }
 
+    // A song that isn't loaded yet is loaded on the main thread the moment it plays, freezing the game for a beat.
+    // Asking for all of them up front lets clips set to load in the background do so while the start screen is up
     private void Start()
     {
-        BuildStartPanel();
-        BuildEndPanel();
-        _endPanel.SetActive(false);
+        foreach (var track in _setList)
+        {
+            LoadClip(track.BackingClip);
+            LoadClip(track.InstrumentClip);
+        }
     }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-    private void Update()
+    private static void LoadClip(AudioClip clip)
     {
-        var keyboard = Keyboard.current;
-        if (keyboard != null && _skipSongKey != Key.None && keyboard[_skipSongKey].wasPressedThisFrame)
+        if (clip != null && clip.loadState == AudioDataLoadState.Unloaded)
         {
-            DebugSkipSong();
+            clip.LoadAudioData();
         }
     }
 
     private void DebugSkipSong()
     {
-        if (_songIndex < 0 || _endPanel.activeSelf)
+        // The same press may have just started the set from the start screen
+        if (_songIndex < 0 || _hasEnded || Time.frameCount == _startedFrame)
         {
             return;
         }
@@ -91,32 +92,6 @@ public class ConcertSet : MonoBehaviour
                   $"(now {_engagement.Engagement:0.00})");
         OnSongFinished();
     }
-#endif
-
-    private void BuildStartPanel()
-    {
-        _startPanel = WorldUI.CreatePanel(transform, "Start Panel", _metersPerUnit, _spacing, _panelColor);
-        WorldUI.CreateLabel(_startPanel.transform, "Ready to play?", _buttonSize, _fontSize);
-        WorldUI.CreateButton(_startPanel.transform, "Start", StartSet, _buttonSize, _fontSize, _buttonColor);
-        if (_recordingWriter != null)
-        {
-            var watchLastReplayButton = WorldUI.CreateButton(_startPanel.transform, "Watch last replay", WatchLastReplay, _buttonSize, _fontSize, _buttonColor);
-            watchLastReplayButton.interactable = _recordingWriter.FindLatestRecordingPath() != null;
-        }
-    }
-
-    private void BuildEndPanel()
-    {
-        _endPanel = WorldUI.CreatePanel(transform, "End Panel", _metersPerUnit, _spacing, _panelColor);
-        WorldUI.CreateLabel(_endPanel.transform, "That's the show!", _buttonSize, _fontSize);
-        _revenueButton = WorldUI.CreateButton(_endPanel.transform, "Show revenue", ShowRevenue, _buttonSize, _fontSize, _buttonColor);
-        _revenueText = _revenueButton.GetComponentInChildren<TextMeshProUGUI>();
-        if (_recordingWriter != null)
-        {
-            _watchReplayButton = WorldUI.CreateButton(_endPanel.transform, "Watch replay", WatchReplay, _buttonSize, _fontSize, _buttonColor);
-        }
-        WorldUI.CreateButton(_endPanel.transform, "Restart", _sceneTransition.ReloadScene, _buttonSize, _fontSize, _buttonColor);
-    }
 
     public void StartSet()
     {
@@ -125,8 +100,8 @@ public class ConcertSet : MonoBehaviour
             return;
         }
 
-        _startPanel.SetActive(false);
         _engagement.ResetEngagement();
+        _startedFrame = Time.frameCount;
         SetStarted?.Invoke();
         PlaySong(0);
     }
@@ -145,6 +120,7 @@ public class ConcertSet : MonoBehaviour
     private IEnumerator Applause()
     {
         _trackPlayer.ResetPlayer();
+        _trackPlayer.IsApplauding = true;
         if (_cheer != null)
         {
             _cheer.Cheer();
@@ -157,6 +133,7 @@ public class ConcertSet : MonoBehaviour
     private void EndApplause()
     {
         _applause = null;
+        _trackPlayer.IsApplauding = false;
         if (_songIndex + 1 < _setList.Length)
         {
             _engagement.Set(_engagement.Engagement * _engagementKept);
@@ -164,26 +141,55 @@ public class ConcertSet : MonoBehaviour
         }
         else
         {
-            _endPanel.SetActive(true);
-            SetEnded?.Invoke();
+            EndSet();
         }
     }
 
-    private void WatchReplay()
+    private void EndSet()
     {
-        _watchReplayButton.interactable = false;
-        StartCoroutine(LoadReplayOnceSaved());
+        _hasEnded = true;
+        SetEnded?.Invoke();
     }
 
-    private void WatchLastReplay()
+    // Starts the set first if it hasn't, so everything that follows the show (recording, menus) sees a normal start and end
+    private void DebugSkipToEnd()
     {
-        var path = _recordingWriter.FindLatestRecordingPath();
-        if (path == null)
+        // Paused: leave it be, the pause menu would end up on top of the end screen with the game still frozen
+        if (_hasEnded || Time.timeScale == 0.0f)
+        {
+            Debug.Log($"[SkipDiag] Skip to end ignored: hasEnded {_hasEnded}, timeScale {Time.timeScale}");
+            return;
+        }
+
+        if (_songIndex < 0)
+        {
+            StartSet();
+        }
+        if (_applause != null)
+        {
+            StopCoroutine(_applause);
+            _applause = null;
+        }
+        _trackPlayer.ResetPlayer();
+        _songIndex = _setList.Length - 1;
+        Debug.Log("[Debug] Skipped to the end of the set");
+        EndSet();
+    }
+
+    public void Restart()
+    {
+        _sceneTransition.ReloadScene();
+    }
+
+    // The recording may still be flushing to disk, so this waits for it before switching scenes
+    public void WatchReplay()
+    {
+        if (_recordingWriter == null || _isLoadingReplay)
         {
             return;
         }
-        ReplayEventDispatcher.RequestedRecordingPath = path;
-        _sceneTransition.LoadScene(_replaySceneName);
+        _isLoadingReplay = true;
+        StartCoroutine(LoadReplayOnceSaved());
     }
 
     private IEnumerator LoadReplayOnceSaved()
@@ -196,21 +202,15 @@ public class ConcertSet : MonoBehaviour
         _sceneTransition.LoadScene(_replaySceneName);
     }
 
-    private void ShowRevenue()
-    {
-        _revenueText.text = $"${_revenue.Revenue:N0} ({_revenue.TicketsSold} tickets)";
-        _revenueButton.interactable = false;
-    }
-
 #if UNITY_EDITOR
     private void Reset()
     {
         _trackPlayer = FindFirstObjectByType<TrackPlayer>();
         _engagement = FindFirstObjectByType<EngagementHolder>();
         _cheer = FindFirstObjectByType<CrowdCheer>();
-        _revenue = FindFirstObjectByType<ConcertRevenue>();
         _sceneTransition = FindFirstObjectByType<SceneTransition>();
         _recordingWriter = FindFirstObjectByType<RecordingSessionWriter>();
+        _debugSkip = FindFirstObjectByType<DebugSkipInput>();
     }
 #endif
 }

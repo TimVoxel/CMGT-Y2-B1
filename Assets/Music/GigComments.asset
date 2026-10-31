@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71c4b742b7fd479dba7ad59fb332f116, type: 3}
+  m_Name: GigComments
+  m_EditorClassIdentifier:
+  _usernameAdjectives:
+  - Cosmic
+  - Sleepy
+  - Fuzzy
+  - Turbo
+  - Velvet
+  - Crispy
+  - Lunar
+  - Mellow
+  - Neon
+  - Brave
+  - Spicy
+  - Quiet
+  - Groovy
+  - Tiny
+  - Electric
+  _usernameNouns:
+  - Otter
+  - Pickle
+  - Falcon
+  - Toaster
+  - Badger
+  - Comet
+  - Noodle
+  - Walrus
+  - Cactus
+  - Llama
+  - Waffle
+  - Penguin
+  - Moth
+  - Raccoon
+  - Biscuit
+  _usernameNumberChance: 0.7
+  _usernameNumberRange: {x: 1, y: 9999}
+  _comments:
+  - _text: Been skeptical on the whole VR concerts thing. My son convinced me to try, maybe they're not too bad after all!
+    _priority: 8
+  - _text: Better than some live shows I've been too (that's how you know I'm old lmao)
+    _priority: 10
+  - _text: best show i've been to all year
+    _priority: 2
+  - _text: They're always playing these old ass rock songs. Like we get it, you are very distinguished and educated...
+    _priority: 6
+  - _text: who else got goosebumps??
+    _priority: 2
+  - _text: VR moshpit > Real moshpit, fight me.
+    _priority: 5
+  - _text: ok but that second song tho
+    _priority: 2
+  - _text: Shout out to spoteefy.ai for recommending me this! It knows me far too well, lol!
+    _priority: 9
+  - _text: Kinda sad that I'll never hear these songs again, this rocks. It was so simple to relisten to something back in the day...
+    _priority: 10
+  - _text: 11/10 would attend again
+    _priority: 1
+  - _text: My knees are too old for real concert crowds these days anyway, might just stick to VR from now on, this was way better than I expected.
+    _priority: 7
+  - _text: need the setlist asap
+    _priority: 3
+  - _text: didn't expect to cry tonight
+    _priority: 2
+  - _text: I remember when video games were just pixels on a screen, now I'm standing at a virtual concert, so awesome!
+    _priority: 7
+  - _text: you're going places fr
+    _priority: 1
+  - _text: Imagine showing this to somebody 30 years ago.
+    _priority: 6
+  - _text: Got the 2010 vibes from thissss (idk I wasn't alive back then)
+    _priority: 6
+  _priorityShuffle: 3
+  _commentsShown: 4

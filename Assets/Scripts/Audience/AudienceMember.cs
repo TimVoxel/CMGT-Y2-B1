@@ -17,6 +17,16 @@ public class AudienceMember : MonoBehaviour
     [SerializeField, Range(0.0f, 1.0f)] private float _clapThresholdBlend = 0.5f;
     [SerializeField] private UnityEngine.Events.UnityEvent _onClap;
 
+    [Header("Applause")]
+    [SerializeField] private Vector2 _applauseJumpsPerSecond = new Vector2(1.5f, 2.3f);
+    [SerializeField, Range(0.0f, 1.0f)] private float _applauseMinExcitement = 0.5f;
+    [SerializeField] private float _applauseBlendTime = 0.3f;
+
+    [Header("Excited by being pointed at")]
+    [SerializeField] private float _excitedJumpHeight = 0.4f;
+    [SerializeField] private float _excitedJumpsPerSecond = 3.0f;
+    [SerializeField] private float _excitedBlendTime = 0.15f;
+
     [Header("Moshing")]
     [SerializeField] private float _moshJumpMultiplier = 1.8f;
     [SerializeField] private Vector2 _moshTurnInterval = new Vector2(0.3f, 1.0f);
@@ -43,6 +53,13 @@ public class AudienceMember : MonoBehaviour
     private float _amplitudeVelocity;
     private long _currentBeatIndex = long.MinValue;
     private float _beatVariation = 1.0f;
+    private float _applauseJumpRate;
+    private float _applauseJumpPhase;
+    private float _applauseBlend;
+    private Renderer _renderer;
+    private float _excitedTimeLeft;
+    private float _excitedJumpPhase;
+    private float _excitedBlend;
 
     public int Id { get; private set; }
     public int PrefabIndex { get; private set; }
@@ -51,6 +68,8 @@ public class AudienceMember : MonoBehaviour
     public float ClapThreshold => Mathf.Lerp(_engagementThreshold, _clapCeiling, _clapThresholdBlend);
     public bool IsClapping => _engagement != null && _engagement.Engagement >= ClapThreshold;
     public bool IsMoshing => _isMoshing;
+    public bool IsExcited => _excitedTimeLeft > 0.0f;
+    public Vector3 Center => _renderer != null ? _renderer.bounds.center : transform.position;
     public Vector3 BasePosition => _basePosition;
     public Quaternion BaseRotation => _baseRotation;
     public Vector3 GroundPosition => _groundPosition;
@@ -112,6 +131,27 @@ public class AudienceMember : MonoBehaviour
         _basePosition = transform.localPosition;
         _baseRotation = transform.localRotation;
         _groundPosition = _basePosition;
+        _applauseJumpRate = Random.Range(_applauseJumpsPerSecond.x, _applauseJumpsPerSecond.y);
+        _applauseJumpPhase = Random.value;
+        _renderer = GetComponentInChildren<Renderer>();
+    }
+
+    public void Excite(float duration)
+    {
+        _excitedTimeLeft = Mathf.Max(_excitedTimeLeft, duration);
+    }
+
+    private float UpdateExcitedHeight(float height)
+    {
+        _excitedTimeLeft = Mathf.Max(0.0f, _excitedTimeLeft - Time.deltaTime);
+        _excitedBlend = Mathf.MoveTowards(_excitedBlend, IsExcited ? 1.0f : 0.0f, Time.deltaTime / Mathf.Max(1e-4f, _excitedBlendTime));
+        if (_excitedBlend <= 0.0f)
+        {
+            return height;
+        }
+
+        _excitedJumpPhase = Mathf.Repeat(_excitedJumpPhase + Time.deltaTime * _excitedJumpsPerSecond, 1.0f);
+        return Mathf.Lerp(height, Mathf.Sin(_excitedJumpPhase * Mathf.PI) * _excitedJumpHeight, _excitedBlend);
     }
 
     public void StartMoshing(Vector3 center, float radius, float speed)
@@ -184,10 +224,15 @@ public class AudienceMember : MonoBehaviour
 
     private void Update()
     {
+        var isApplauding = _trackPlayer != null && _trackPlayer.IsApplauding;
         var targetAmplitude = 0.0f;
-        if (_engagement != null && _trackPlayer != null && _trackPlayer.IsPlaying)
+        if (_engagement != null && _trackPlayer != null && (_trackPlayer.IsPlaying || isApplauding))
         {
             var excitement = Mathf.InverseLerp(_engagementThreshold, 1.0f, _engagement.Engagement);
+            if (isApplauding)
+            {
+                excitement = Mathf.Max(excitement, _applauseMinExcitement);
+            }
             targetAmplitude = excitement * _maxAmplitude;
         }
         _amplitude = Mathf.SmoothDamp(_amplitude, targetAmplitude, ref _amplitudeVelocity, _amplitudeSmoothTime);
@@ -206,11 +251,22 @@ public class AudienceMember : MonoBehaviour
 
             var beatPhase = (float)(beat - beatIndex);
             height = Mathf.Abs(Mathf.Sin(beatPhase * Mathf.PI)) * _amplitude * _beatVariation;
+
+            if (isApplauding)
+            {
+                _applauseJumpPhase = Mathf.Repeat(_applauseJumpPhase + Time.deltaTime * _applauseJumpRate * _trackPlayer.ApplauseSpeed, 1.0f);
+            }
+            _applauseBlend = Mathf.MoveTowards(_applauseBlend, isApplauding ? 1.0f : 0.0f, Time.deltaTime / Mathf.Max(1e-4f, _applauseBlendTime));
+            var applauseHeight = Mathf.Sin(_applauseJumpPhase * Mathf.PI) * _amplitude;
+            height = Mathf.Lerp(height, applauseHeight, _applauseBlend);
+
             if (_isMoshing)
             {
                 height *= _moshJumpMultiplier;
             }
         }
+
+        height = UpdateExcitedHeight(height);
 
         UpdatePresence();
         UpdateGroundPosition();

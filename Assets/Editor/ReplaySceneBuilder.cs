@@ -99,17 +99,25 @@ public static class ReplaySceneBuilder
         var avatar = replay.AddComponent<ReplayAvatar>();
         SetReference(avatar, "_dispatcher", dispatcher);
         SetReference(avatar, "_head", CreateHeadVisual(replay.transform));
-        SetReference(avatar, "_leftHand", CreateHandVisual(replay.transform, "Recorded Left Hand"));
-        SetReference(avatar, "_rightHand", CreateHandVisual(replay.transform, "Recorded Right Hand"));
+        var recordedLeftHand = CreateHandVisual(replay.transform, "Recorded Left Hand");
+        var recordedRightHand = CreateHandVisual(replay.transform, "Recorded Right Hand");
+        SetReference(avatar, "_leftHand", recordedLeftHand);
+        SetReference(avatar, "_rightHand", recordedRightHand);
 
         var controls = new GameObject("Replay Controls");
         controls.transform.SetPositionAndRotation(panelPosition, panelRotation);
         var panel = controls.AddComponent<ReplayControlPanel>();
         SetReference(panel, "_dispatcher", dispatcher);
         SetReference(panel, "_sceneTransition", sceneTransition);
+        SetReference(controls.AddComponent<EyeLevelPlacement>(), "_player", Find<PlayerHeightProvider>());
 
         ReplaceWithSpectatorRig();
         AddTeleportSurfaces();
+
+        var pointing = Find<AudiencePointing>();
+        SetReference(pointing, "_leftHand", recordedLeftHand);
+        SetReference(pointing, "_rightHand", recordedRightHand);
+        Set(pointing, "_addsEngagement", property => property.boolValue = false);
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
@@ -125,8 +133,11 @@ public static class ReplaySceneBuilder
         DestroyGameObjects<ConcertRevenue>();
         DestroyGameObjects<DebugTrackMenu>();
         DestroyGameObjects<LaneHitter>();
+        DestroyGameObjects<PlayerHeadStandIn>();
         DestroyComponents<AudienceGrowth>();
         DestroyComponents<NoteEngagementDriver>();
+        DestroyComponents<HeadMotionTracker>();
+        DestroyComponents<CoolPoseDetector>();
         DestroyComponents<LaneOffsetCalibrator>();
     }
 

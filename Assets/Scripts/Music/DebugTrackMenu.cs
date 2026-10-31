@@ -39,7 +39,7 @@ public class DebugTrackMenu : MonoBehaviour
                 continue;
             }
 
-            var label = track.Clip != null ? track.Clip.name : track.name;
+            var label = track.BackingClip != null ? track.BackingClip.name : track.name;
             var image = CreateButton(canvasObject.transform, label, () =>
             {
                 _trackPlayer.PlayTrack(track);

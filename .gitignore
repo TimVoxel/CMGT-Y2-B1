@@ -14,6 +14,7 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /[Bb]in
+/_Recovery
 *.log
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
@@ -109,3 +110,9 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 build-quest.ps1
+# GarageBand source projects and exports
+/Tools/Song */
+Assets/Music/Tracks/Liars.mid
+Assets/Music/Tracks/Liars.mid.meta
+misc/miss sfx originals/Recording (71).m4a
+/Tools/Notes.m4a
