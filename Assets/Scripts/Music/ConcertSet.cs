@@ -57,10 +57,16 @@ public class ConcertSet : MonoBehaviour
     {
         foreach (var track in _setList)
         {
-            if (track.Clip != null && track.Clip.loadState == AudioDataLoadState.Unloaded)
-            {
-                track.Clip.LoadAudioData();
-            }
+            LoadClip(track.BackingClip);
+            LoadClip(track.InstrumentClip);
+        }
+    }
+
+    private static void LoadClip(AudioClip clip)
+    {
+        if (clip != null && clip.loadState == AudioDataLoadState.Unloaded)
+        {
+            clip.LoadAudioData();
         }
     }
 

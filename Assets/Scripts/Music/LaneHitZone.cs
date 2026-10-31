@@ -40,6 +40,7 @@ public class LaneHitZone : MonoBehaviour
     [SerializeField] private float _minBounceTravel = 0.01f;
     [SerializeField] private float _upswingSpeed = 0.05f;
     [SerializeField] private float _maxStrikeDepth = 0.12f;
+    [SerializeField] private float _minPredictedStrikeSpeed = 0.3f;
 
     [SerializeField] private UnityEvent _onPressed;
     [SerializeField] private UnityEvent _onNoteHit;
@@ -68,6 +69,29 @@ public class LaneHitZone : MonoBehaviour
         {
             particles.sharedMaterial = laneMaterial;
         }
+    }
+
+    public bool IsStrikeExpectedWithin(float minSeconds, float maxSeconds)
+    {
+        if (!_hasBarBounds)
+        {
+            return false;
+        }
+        foreach (var hitter in LaneHitter.Active)
+        {
+            var height = Measure(hitter.transform.position, out var isOverBar);
+            var downwardSpeed = -hitter.Velocity.y;
+            if (!isOverBar || height <= 0.0f || downwardSpeed < _minPredictedStrikeSpeed)
+            {
+                continue;
+            }
+            var secondsToImpact = height / downwardSpeed;
+            if (secondsToImpact >= minSeconds && secondsToImpact <= maxSeconds)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void NotifyMissed()

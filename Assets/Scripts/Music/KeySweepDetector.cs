@@ -12,6 +12,7 @@ public class KeySweepDetector : MonoBehaviour
 
     public int KeyCount => _keys.Length;
     public event Action<int, int> ProgressChanged;
+    public event Action PokeDidNotAdvance;
     public event Action Completed;
 
     private void Awake()
@@ -61,9 +62,18 @@ public class KeySweepDetector : MonoBehaviour
         {
             SetProgress(_progress + 1);
         }
-        else if (index != _progress - 1)
+        else if (index == _progress - 1)
         {
-            SetProgress(index == 0 ? 1 : 0);
+            PokeDidNotAdvance?.Invoke();
+        }
+        else if (index == 0)
+        {
+            SetProgress(1);
+        }
+        else
+        {
+            SetProgress(0);
+            PokeDidNotAdvance?.Invoke();
         }
 
         if (_progress == _keys.Length)

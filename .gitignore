@@ -110,3 +110,9 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 build-quest.ps1
+# GarageBand source projects and exports
+/Tools/Song */
+Assets/Music/Tracks/Liars.mid
+Assets/Music/Tracks/Liars.mid.meta
+misc/miss sfx originals/Recording (71).m4a
+/Tools/Notes.m4a

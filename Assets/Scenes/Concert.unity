@@ -3184,6 +3184,7 @@ MonoBehaviour:
   _minBounceTravel: 0.01
   _upswingSpeed: 0.05
   _maxStrikeDepth: 0.12
+  _minPredictedStrikeSpeed: 0.3
   _onPressed:
     m_PersistentCalls:
       m_Calls:
@@ -4005,6 +4006,7 @@ MonoBehaviour:
   _minBounceTravel: 0.01
   _upswingSpeed: 0.05
   _maxStrikeDepth: 0.12
+  _minPredictedStrikeSpeed: 0.3
   _onPressed:
     m_PersistentCalls:
       m_Calls:
@@ -4456,8 +4458,8 @@ MonoBehaviour:
   _cheerChancePerSecond: 0.1
   _cooldown: 3
   _volumeRange: {x: 0.15, y: 1}
-  _loudCheerVolume: 1.6
   _pitchRange: {x: 0.95, y: 1.05}
+  _fadeInDuration: 0.3
   _cheersOnItsOwn: 1
 --- !u!82 &518397766
 AudioSource:
@@ -6603,6 +6605,7 @@ MonoBehaviour:
   _minBounceTravel: 0.01
   _upswingSpeed: 0.05
   _maxStrikeDepth: 0.12
+  _minPredictedStrikeSpeed: 0.3
   _onPressed:
     m_PersistentCalls:
       m_Calls:
@@ -7417,6 +7420,12 @@ MonoBehaviour:
   _referenceNotesPerSecond: 1.5
   _tempoInfluence: 0.4
   _densityInfluence: 0.6
+  _windUpHeightRange: {x: 0.15, y: 0.6}
+  _maxWindUpGainMultiplier: 1.75
+  _charismaPerFullWindUp: 0.05
+  _bothHandsMinWindUpHeight: 0.3
+  _bothHandsWindow: 0.15
+  _bothHandsEngagementBonus: 0.1
 --- !u!114 &741435199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7499,6 +7508,7 @@ MonoBehaviour:
   _minBounceTravel: 0.01
   _upswingSpeed: 0.05
   _maxStrikeDepth: 0.12
+  _minPredictedStrikeSpeed: 0.3
   _onPressed:
     m_PersistentCalls:
       m_Calls:
@@ -8241,6 +8251,7 @@ MonoBehaviour:
   _minBounceTravel: 0.01
   _upswingSpeed: 0.05
   _maxStrikeDepth: 0.12
+  _minPredictedStrikeSpeed: 0.3
   _onPressed:
     m_PersistentCalls:
       m_Calls:
@@ -10007,6 +10018,7 @@ GameObject:
   - component: {fileID: 1078981825}
   - component: {fileID: 1078981826}
   - component: {fileID: 731900015}
+  - component: {fileID: 1078981827}
   m_Layer: 0
   m_Name: Track player
   m_TagString: Untagged
@@ -10050,6 +10062,7 @@ MonoBehaviour:
   _audioSource: {fileID: 1078981825}
   _playOnStart: 0
   _startDelay: 2.5
+  _keepInstrumentForPredictedStrikes: 1
   _hitWindow: 0.15
   _laneMarkerPrefab: {fileID: 4980346529205827719, guid: ef0059c41f911164b8a23fe64c7223f0, type: 3}
   _laneHitZones:
@@ -10192,6 +10205,33 @@ MonoBehaviour:
   _minEyeHeight: 0.8
   _settleTolerance: 0.03
   _settleTime: 0.5
+--- !u!114 &1078981827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1078981822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c7e0a0e2e414bebb027576db0f0fd94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MissSoundPlayer
+  _trackPlayer: {fileID: 1078981824}
+  _keySweep: {fileID: 731900016}
+  _sounds:
+  - {fileID: 8300000, guid: f08fd19e683ff28a7c0fbbee70a42839, type: 3}
+  - {fileID: 8300000, guid: 4bbf6552e0aa390215611850806674d3, type: 3}
+  - {fileID: 8300000, guid: 20080f9868c3133ca2c359b3ff7ba7a2, type: 3}
+  - {fileID: 8300000, guid: 5623413efb1c724cc9d4f467b17d28ee, type: 3}
+  - {fileID: 8300000, guid: 09d34ef1836c96d94ac197548af7c538, type: 3}
+  - {fileID: 8300000, guid: d0244c9581ac3e43db9f2a8e3e6695db, type: 3}
+  - {fileID: 8300000, guid: 965ceb7d3b0236319bc7bcd55fbf5c2c, type: 3}
+  - {fileID: 8300000, guid: 182a5f360c9971c552785b7c8dbb4267, type: 3}
+  - {fileID: 8300000, guid: 8de67283c401218b99a9ab19a17aac05, type: 3}
+  - {fileID: 8300000, guid: f8ade6d493bbe66f91d39770169eb413, type: 3}
+  _volumeRange: {x: 0.4, y: 0.6}
+  _pitchRange: {x: 0.94, y: 1.06}
 --- !u!1 &1106603721
 GameObject:
   m_ObjectHideFlags: 0
@@ -10223,6 +10263,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DebugTrackMenu
   _trackPlayer: {fileID: 1078981824}
   _tracks:
+  - {fileID: 11400000, guid: 4cd53d02355c63a804813762c9928f3a, type: 2}
   - {fileID: 11400000, guid: 6cd8e1c9164703f4ab71a742fb153817, type: 2}
   - {fileID: 11400000, guid: ced7416c50bc62946947d34f780a12dc, type: 2}
   - {fileID: 11400000, guid: b64dad327a83bf942b680954e341570a, type: 2}
@@ -11552,6 +11593,7 @@ GameObject:
   - component: {fileID: 731900010}
   - component: {fileID: 731900011}
   - component: {fileID: 731900016}
+  - component: {fileID: 1533948922}
   m_Layer: 0
   m_Name: Concert Set
   m_TagString: Untagged
@@ -11593,6 +11635,7 @@ MonoBehaviour:
   _recordingWriter: {fileID: 2054501746}
   _replaySceneName: ReplayScene
   _setList:
+  - {fileID: 11400000, guid: 4cd53d02355c63a804813762c9928f3a, type: 2}
   - {fileID: 11400000, guid: 6cd8e1c9164703f4ab71a742fb153817, type: 2}
   - {fileID: 11400000, guid: ced7416c50bc62946947d34f780a12dc, type: 2}
   - {fileID: 11400000, guid: b64dad327a83bf942b680954e341570a, type: 2}
@@ -11601,6 +11644,27 @@ MonoBehaviour:
   _engagementKept: 0.2
   _debugSkip: {fileID: 731900014}
   _skipEngagementRange: {x: 0.1, y: 0.6}
+--- !u!114 &1533948922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1533948919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 957a92b69d82450fbd1bc22997df5c10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeySweepNotePlayer
+  _keySweep: {fileID: 731900016}
+  _notesLeftToRight:
+  - {fileID: 8300000, guid: 3ba36bf4800145ef874dbf50bf25c759, type: 3}
+  - {fileID: 8300000, guid: a280df5ab47f44c0bd8838b2538664f0, type: 3}
+  - {fileID: 8300000, guid: f1ae2704d0d64d7c94a003dd1ebb9625, type: 3}
+  - {fileID: 8300000, guid: 32edda3855fa46e08bd924397448799e, type: 3}
+  - {fileID: 8300000, guid: 41a3da8c07f34fb6a723df4484984aaf, type: 3}
+  - {fileID: 8300000, guid: f81cce2421d54d0382a179e8c73ba71c, type: 3}
+  _volume: 0.3
 --- !u!1 &1597190818
 GameObject:
   m_ObjectHideFlags: 0
@@ -13196,6 +13260,7 @@ MonoBehaviour:
   _minBounceTravel: 0.01
   _upswingSpeed: 0.05
   _maxStrikeDepth: 0.12
+  _minPredictedStrikeSpeed: 0.3
   _onPressed:
     m_PersistentCalls:
       m_Calls:
