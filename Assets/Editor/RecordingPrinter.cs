@@ -104,6 +104,7 @@ public static class RecordingPrinter
         NoteMissedEvent noteMissed => $"lane {noteMissed.Lane}  note #{noteMissed.NoteRecordIndex}",
         EmptyPressEvent emptyPress => $"lane {emptyPress.Lane}",
         LaneLayoutChangedEvent layout => $"hit line height {layout.HitLineHeight:0.000}  horizontal factor {layout.HorizontalHeightFactor:0.000}",
+        LaneDepthChangedEvent depth => $"hit line depth {depth.HitLineDepth:0.000}",
         AudienceMemberJoinedEvent joined => $"id {joined.MemberId}  prefab {joined.PrefabIndex}  pos {joined.LocalPosition.ToString("F2")}  " +
                                             $"threshold {joined.EngagementThreshold:0.00}  amplitude {joined.MaxAmplitude:0.00}{(joined.PoppedIn ? "  (popped in)" : "")}",
         AudienceMemberLeftEvent left => $"id {left.MemberId}",

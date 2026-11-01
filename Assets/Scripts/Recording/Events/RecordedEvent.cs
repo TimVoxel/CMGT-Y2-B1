@@ -9,6 +9,7 @@ public enum RecordedEventType : byte
     NoteMissed = 13,
     EmptyPress = 14,
     LaneLayoutChanged = 15,
+    LaneDepthChanged = 16,
 
     AudienceMemberJoined = 20,
     AudienceMemberLeft = 21,

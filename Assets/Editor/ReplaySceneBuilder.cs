@@ -20,7 +20,7 @@ public static class ReplaySceneBuilder
     private const string ControllerModelPath = "Assets/Samples/XR Interaction Toolkit/3.0.11/Starter Assets/Models/UniversalController.fbx";
     private const string SpectatorRigPath = "Assets/Samples/XR Interaction Toolkit/3.0.11/Starter Assets/Prefabs/XR Origin (XR Rig).prefab";
     private const string TeleportInteractionLayer = "Teleport";
-    private static readonly string[] TeleportSurfacePaths = { "/unity - concert stage graybox colors 4fbx/Cube", "/Cylinder", "/floor test" };
+    private static readonly string[] TeleportSurfacePaths = { "/unity - concert stage graybox colors 7fbx/Cube", "/Cylinder", "/floor test" };
     private const float ViewerStepBack = 1.5f;
     private static readonly Vector3 ControllerModelOffset = new Vector3(0.0f, 0.0f, -0.05f);
     private static readonly Quaternion ControllerModelRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
