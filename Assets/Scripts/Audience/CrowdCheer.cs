@@ -19,6 +19,7 @@ public class CrowdCheer : MonoBehaviour
     [SerializeField] private Vector2 _pitchRange = new Vector2(0.95f, 1.05f);
     [SerializeField] private float _fadeInDuration = 0.3f;
     [SerializeField] private bool _cheersOnItsOwn = true;
+    [SerializeField] private CrowdAudioArea _audioArea = new CrowdAudioArea();
 
     private float _nextCheerAllowedTime;
     private int _lastClipIndex = -1;
@@ -39,7 +40,6 @@ public class CrowdCheer : MonoBehaviour
         }
         _source.playOnAwake = false;
         _source.loop = false;
-        _sources.Add(_source);
     }
 
     private bool IsAnyCheerPlaying()
@@ -64,9 +64,7 @@ public class CrowdCheer : MonoBehaviour
             }
         }
 
-        var extraSource = gameObject.AddComponent<AudioSource>();
-        extraSource.playOnAwake = false;
-        extraSource.loop = false;
+        var extraSource = _audioArea.CreateSource(transform, $"Cheer Source {_sources.Count}");
         extraSource.outputAudioMixerGroup = _source.outputAudioMixerGroup;
         extraSource.spatialBlend = _source.spatialBlend;
         extraSource.rolloffMode = _source.rolloffMode;
@@ -140,6 +138,7 @@ public class CrowdCheer : MonoBehaviour
     {
         var clip = _cheerClips[clipIndex];
         var source = GetFreeSource();
+        source.transform.position = _audioArea.PickPoint();
         source.clip = clip;
         source.pitch = pitch;
         source.volume = 0.0f;

@@ -47,12 +47,15 @@ public class AudienceGrowth : MonoBehaviour
         while (_pendingJoins >= 1.0f)
         {
             _pendingJoins -= 1.0f;
-            if (_audience.Members.Count >= _maxMembers)
+            if (_audience.StandingCount < _maxMembers)
+            {
+                _audience.AddMember(true);
+            }
+            else if (_audience.AddSeatedMember() == null)
             {
                 _pendingJoins = 0.0f;
                 break;
             }
-            _audience.AddMember(true);
         }
     }
 
