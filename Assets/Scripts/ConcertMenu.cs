@@ -11,6 +11,8 @@ public class ConcertMenu : MonoBehaviour
     [SerializeField] private ConcertSet _concertSet;
     [SerializeField] private ConcertRevenue _revenue;
     [SerializeField] private GamePause _pause;
+    [SerializeField] private bool _showStartPanel = true;
+    [SerializeField] private bool _showPausePanel = true;
 
     [SerializeField] private float _loadingDelay = 1.5f;
     [SerializeField] private AgentLoadingScript _loadingScript;
@@ -140,6 +142,7 @@ public class ConcertMenu : MonoBehaviour
     private void ShowStartPanel()
     {
         _startPanel.SetActive(true);
+        _startPanel.SetActive(_showStartPanel);
         if (_keySweep != null)
         {
             _keySweep.StartListening();
@@ -183,6 +186,7 @@ public class ConcertMenu : MonoBehaviour
             }
         }
         _pausePanel.SetActive(true);
+        _pausePanel.SetActive(_showPausePanel);
     }
 
     private void OnResumed()
