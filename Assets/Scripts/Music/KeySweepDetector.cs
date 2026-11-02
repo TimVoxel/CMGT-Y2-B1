@@ -14,6 +14,7 @@ public class KeySweepDetector : MonoBehaviour
     public event Action<int, int> ProgressChanged;
     public event Action PokeDidNotAdvance;
     public event Action Completed;
+    public event Action<int> KeyStruckOutsideSweep;
 
     private void Awake()
     {
@@ -38,11 +39,16 @@ public class KeySweepDetector : MonoBehaviour
 
     public void StartListening()
     {
+        OrderKeysLeftToRight();
+        _isListening = true;
+        SetProgress(0);
+    }
+
+    private void OrderKeysLeftToRight()
+    {
         var viewer = Camera.main;
         var right = viewer != null ? viewer.transform.right : Vector3.right;
         _keys = _keys.OrderBy(key => Vector3.Dot(key.transform.position, right)).ToArray();
-        _isListening = true;
-        SetProgress(0);
     }
 
     public void StopListening()
@@ -54,6 +60,8 @@ public class KeySweepDetector : MonoBehaviour
     {
         if (!_isListening)
         {
+            OrderKeysLeftToRight();
+            KeyStruckOutsideSweep?.Invoke(Array.IndexOf(_keys, key));
             return;
         }
 

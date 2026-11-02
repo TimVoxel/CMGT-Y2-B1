@@ -980,6 +980,28 @@
             "bindings": [
                 {
                     "name": "",
+                    "id": "a743f7bd-674f-42e0-b29c-aa9cf496b2a9",
+                    "path": "<XRController>{LeftHand}/{TriggerButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ea72c9e-a933-415b-b378-aa1a72762c65",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "71a4d23f-3e9a-4513-923b-ba388c5e84bf",
                     "path": "<XRController>{LeftHand}/{GripButton}",
                     "interactions": "",
@@ -1030,6 +1052,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c273565e-17a4-46fe-8ead-769a545603ab",
+                    "path": "<XRController>{LeftHand}/{Trigger}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select Value",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2c746b08-7620-4118-906e-ba7ab0b5a2cf",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select Value",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1112,6 +1156,17 @@
                 },
                 {
                     "name": "",
+                    "id": "bdc14481-131d-4a89-be1b-c71fad06d6f3",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UI Press",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "b34c79c1-ab5e-4851-87ac-abc43705eae0",
                     "path": "<XRController>{LeftHand}/{TriggerButton}",
                     "interactions": "",
@@ -1151,6 +1206,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "UI Press",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d21e8618-2900-45cd-b637-15931913b5f0",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UI Press Value",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -2051,6 +2117,28 @@
             "bindings": [
                 {
                     "name": "",
+                    "id": "8e4a4599-22f7-480f-bfb5-75c4aa8d1173",
+                    "path": "<XRController>{RightHand}/{TriggerButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4898a72b-7de0-4e69-9e69-e376ffea6aab",
+                    "path": "<XRController>{RightHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "1ce80054-410d-4112-a332-50faa7fb4f23",
                     "path": "<XRController>{RightHand}/{GripButton}",
                     "interactions": "",
@@ -2101,6 +2189,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "aade19c4-c259-4cd2-843a-7d6cdef3bcb6",
+                    "path": "<XRController>{RightHand}/{Trigger}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select Value",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c4129cfc-5196-476d-990f-875ce4f21703",
+                    "path": "<XRController>{RightHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select Value",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -2183,6 +2293,17 @@
                 },
                 {
                     "name": "",
+                    "id": "b4ffca9a-fcf0-4194-a44b-daf7061c90ae",
+                    "path": "<XRController>{RightHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UI Press",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "92bb5b8f-bf48-4dab-af05-50a865773895",
                     "path": "<XRController>{RightHand}/{TriggerButton}",
                     "interactions": "",
@@ -2222,6 +2343,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "UI Press",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3945ca22-16b0-4a1c-b3da-a71c62c77805",
+                    "path": "<XRController>{RightHand}/{PrimaryButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UI Press Value",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

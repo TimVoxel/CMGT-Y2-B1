@@ -25,6 +25,7 @@ public class CurvedSlider : MonoBehaviour
     [SerializeField] private Color _handleColor = new Color(1.0f, 1.0f, 1.0f, 0.9f);
     [SerializeField, Range(0.0f, 1.0f)] private float _value = 0.5f;
 
+    private const int DrawOrderAbovePanel = 1;
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
     private XRSimpleInteractable _interactable;
@@ -32,6 +33,7 @@ public class CurvedSlider : MonoBehaviour
     private IXRSelectInteractor _dragger;
 
     public event Action<float> ValueChanged;
+    public event Action Released;
 
     public float Value
     {
@@ -58,6 +60,7 @@ public class CurvedSlider : MonoBehaviour
         GetComponent<MeshFilter>().sharedMesh = CurvedMenuButton.BuildArcMesh(_radius, _centerAngle, _arcAngle, _trackHeight, _verticalOffset, _segments);
         GetComponent<MeshCollider>().sharedMesh = CurvedMenuButton.BuildArcMesh(_radius, _centerAngle, _arcAngle, _grabHeight, _verticalOffset, _segments);
         var trackRenderer = GetComponent<MeshRenderer>();
+        trackRenderer.sortingOrder = DrawOrderAbovePanel;
         SetColor(trackRenderer, _trackColor);
 
         _handle = new GameObject("Handle").transform;
@@ -65,10 +68,12 @@ public class CurvedSlider : MonoBehaviour
         _handle.gameObject.AddComponent<MeshFilter>().sharedMesh = CurvedMenuButton.BuildArcMesh(_radius - 0.01f, 0.0f, _handleArcAngle, _handleHeight, _verticalOffset, 2);
         var handleRenderer = _handle.gameObject.AddComponent<MeshRenderer>();
         handleRenderer.sharedMaterial = trackRenderer.sharedMaterial;
+        handleRenderer.sortingOrder = DrawOrderAbovePanel + 1;
         SetColor(handleRenderer, _handleColor);
 
         var width = _radius * _arcAngle * Mathf.Deg2Rad;
-        CurvedMenuButton.CreateLabel(transform, _label, _radius - 0.05f, _centerAngle, _verticalOffset + _labelSpacing, new Vector2(width, _labelSpacing), _fontSize);
+        var label = CurvedMenuButton.CreateLabel(transform, _label, _radius - 0.05f, _centerAngle, _verticalOffset + _labelSpacing, new Vector2(width, _labelSpacing), _fontSize);
+        label.sortingOrder = DrawOrderAbovePanel;
 
         _interactable = GetComponent<XRSimpleInteractable>();
         UpdateHandle();
@@ -89,7 +94,11 @@ public class CurvedSlider : MonoBehaviour
 
     private void OnSelectEntered(SelectEnterEventArgs args) => _dragger = args.interactorObject;
 
-    private void OnSelectExited(SelectExitEventArgs args) => _dragger = null;
+    private void OnSelectExited(SelectExitEventArgs args)
+    {
+        _dragger = null;
+        Released?.Invoke();
+    }
 
     private void Update()
     {
