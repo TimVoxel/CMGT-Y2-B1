@@ -146,6 +146,10 @@ public class RecordingSessionWriter : MonoBehaviour
                 writer.Write(laneLayoutChanged.HorizontalHeightFactor);
                 break;
 
+            case LaneDepthChangedEvent laneDepthChanged:
+                writer.Write(laneDepthChanged.HitLineDepth);
+                break;
+
             case AudienceMemberJoinedEvent memberJoined:
                 writer.Write(memberJoined.MemberId);
                 writer.Write(memberJoined.PrefabIndex);

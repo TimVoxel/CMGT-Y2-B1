@@ -18,6 +18,7 @@ public class TrackPlayer : MonoBehaviour
     [SerializeField] private float _spawnTimeOffset;
 
     [SerializeField] private AudioSource _audioSource;
+    [SerializeField, Range(0.0f, 1.0f)] private float _leadVolume = 0.6f;
     [SerializeField] private bool _playOnStart = true;
     [SerializeField] private float _startDelay = 0.1f;
     [SerializeField] private bool _keepInstrumentForPredictedStrikes = true;
@@ -88,6 +89,8 @@ public class TrackPlayer : MonoBehaviour
 
     public Vector3 HitLineCenter => _spawnContainer.TransformPoint(Vector3.forward * _finalPosOffset);
     public Vector3 NoteTravelDirection => (HitLineCenter - _spawnContainer.position).normalized;
+    public Vector3 HorizontalTravelDirection => Vector3.ProjectOnPlane(NoteTravelDirection, Vector3.up).normalized;
+    public float HitLineDepth => Vector3.Dot(HitLineCenter, HorizontalTravelDirection);
     public double SongTimeToDspTime(double songTime) => _startDspTime + songTime;
 
     private void Awake()
@@ -96,7 +99,7 @@ public class TrackPlayer : MonoBehaviour
         {
             _audioSource = gameObject.AddComponent<AudioSource>();
         }
-        _stems = new SyncedStemPlayback(_audioSource);
+        _stems = new SyncedStemPlayback(_audioSource, _leadVolume);
 
         SpawnLaneMarkers();
         ResetPlayer();
@@ -303,6 +306,12 @@ public class TrackPlayer : MonoBehaviour
     public void SetHitLineHeight(float worldY)
     {
         _spawnContainer.position += Vector3.up * (worldY - HitLineCenter.y);
+        LayoutChanged?.Invoke();
+    }
+
+    public void SetHitLineDepth(float depth)
+    {
+        _spawnContainer.position += HorizontalTravelDirection * (depth - HitLineDepth);
         LayoutChanged?.Invoke();
     }
     

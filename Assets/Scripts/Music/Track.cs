@@ -36,8 +36,12 @@ public class Track : ScriptableObject
     [SerializeField] private bool _halfTimeClaps;
     // Metal tracks can start a mosh pit
     [SerializeField] private bool _isMetal;
+    // Numbered like GarageBand, the first bar is 1
+    [SerializeField] private int[] _smokeBars;
     [SerializeField] private List<TrackNoteRecord> _notes;
     [SerializeField] private float _duration;
+
+    private const int BeatsPerBar = 4;
 
     private int? _maxNoteIndex;
 
@@ -56,8 +60,11 @@ public class Track : ScriptableObject
 
     public double GetBeatTime(double beat) => _firstBeatTime + beat * 60.0 / _bpm;
 
+    public double GetBarTime(int bar) => GetBeatTime((bar - 1) * BeatsPerBar);
+
     public int ClapInterval => _halfTimeClaps ? 2 : 1;
     public bool IsMetal => _isMetal;
+    public IReadOnlyList<int> SmokeBars => _smokeBars ?? System.Array.Empty<int>();
 
     public int MaxNoteIndex
         => _maxNoteIndex ??= _notes.Max(t => t.NoteIndex);

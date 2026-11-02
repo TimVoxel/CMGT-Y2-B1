@@ -12,6 +12,7 @@ public class LaneOffsetCalibrator : MonoBehaviour
     [SerializeField] private float _minEyeHeight = 0.8f;
     [SerializeField] private float _settleTolerance = 0.03f;
     [SerializeField] private float _settleTime = 0.5f;
+    [SerializeField] private float _hitLineDistanceInFrontOfHead = 0.296f;
 
     private bool _pending = true;
     private float _settleStartHeight;
@@ -79,7 +80,10 @@ public class LaneOffsetCalibrator : MonoBehaviour
         var hitLineHeight = _heightProvider.HeadTop * _heightFraction;
         _trackPlayer.SetHitLineHeight(_heightProvider.FloorY + hitLineHeight);
         _trackPlayer.HorizontalHeightFactor = GetExtraLaneSpacing(_heightProvider.HeadTop);
-        Debug.Log($"[Height] Fitted to eye height {eyeHeight:0.00} m: playing surface at {hitLineHeight:0.00} m");
+        var headDepth = Vector3.Dot(_heightProvider.Head.position, _trackPlayer.HorizontalTravelDirection);
+        _trackPlayer.SetHitLineDepth(headDepth - _hitLineDistanceInFrontOfHead);
+        Debug.Log($"[Height] Fitted to eye height {eyeHeight:0.00} m: playing surface at {hitLineHeight:0.00} m, " +
+                  $"{_hitLineDistanceInFrontOfHead:0.00} m in front of the head");
     }
 
     private float GetExtraLaneSpacing(float height)

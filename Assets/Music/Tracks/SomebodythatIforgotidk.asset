@@ -1,0 +1,569 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71cd785156b541aba9f9844e8d2d441d, type: 3}
+  m_Name: SomebodythatIforgotidk
+  m_EditorClassIdentifier: 
+  _backingClip: {fileID: 8300000, guid: b262819b198fec09fc5a3c60cf5d29eb, type: 3}
+  _instrumentClip: {fileID: 8300000, guid: cb196450e98f6d92ddc8751c3384815c, type: 3}
+  _instrumentVolume: 1
+  _bpm: 129
+  _timingOffset: 0
+  _firstBeatTime: 0.0281113
+  _halfTimeClaps: 0
+  _isMetal: 0
+  _smokeBars: []
+  _notes:
+  - _noteIndex: 1
+    _position: 0.0281
+  - _noteIndex: 0
+    _position: 0.4932
+  - _noteIndex: 5
+    _position: 0.9583
+  - _noteIndex: 4
+    _position: 1.4361
+  - _noteIndex: 2
+    _position: 1.8886
+  - _noteIndex: 3
+    _position: 2.3702
+  - _noteIndex: 2
+    _position: 2.8440
+  - _noteIndex: 1
+    _position: 3.7510
+  - _noteIndex: 0
+    _position: 4.2142
+  - _noteIndex: 4
+    _position: 4.6691
+  - _noteIndex: 3
+    _position: 5.1502
+  - _noteIndex: 5
+    _position: 5.5993
+  - _noteIndex: 4
+    _position: 5.8421
+  - _noteIndex: 3
+    _position: 6.0538
+  - _noteIndex: 2
+    _position: 6.3072
+  - _noteIndex: 4
+    _position: 6.5397
+  - _noteIndex: 1
+    _position: 7.4700
+  - _noteIndex: 0
+    _position: 7.9351
+  - _noteIndex: 4
+    _position: 8.4002
+  - _noteIndex: 3
+    _position: 8.8779
+  - _noteIndex: 2
+    _position: 9.3304
+  - _noteIndex: 4
+    _position: 9.8120
+  - _noteIndex: 2
+    _position: 10.2859
+  - _noteIndex: 1
+    _position: 11.1928
+  - _noteIndex: 4
+    _position: 11.6265
+  - _noteIndex: 0
+    _position: 12.5921
+  - _noteIndex: 3
+    _position: 13.0514
+  - _noteIndex: 0
+    _position: 13.5063
+  - _noteIndex: 1
+    _position: 13.9816
+  - _noteIndex: 0
+    _position: 15.3769
+  - _noteIndex: 0
+    _position: 15.8421
+  - _noteIndex: 3
+    _position: 16.0746
+  - _noteIndex: 1
+    _position: 16.3072
+  - _noteIndex: 1
+    _position: 16.7723
+  - _noteIndex: 3
+    _position: 17.0048
+  - _noteIndex: 5
+    _position: 17.2374
+  - _noteIndex: 4
+    _position: 18.1676
+  - _noteIndex: 2
+    _position: 19.0979
+  - _noteIndex: 1
+    _position: 19.5630
+  - _noteIndex: 2
+    _position: 19.7955
+  - _noteIndex: 1
+    _position: 20.0281
+  - _noteIndex: 2
+    _position: 20.4932
+  - _noteIndex: 1
+    _position: 20.7258
+  - _noteIndex: 0
+    _position: 20.9583
+  - _noteIndex: 0
+    _position: 21.8886
+  - _noteIndex: 2
+    _position: 22.8188
+  - _noteIndex: 2
+    _position: 23.2839
+  - _noteIndex: 4
+    _position: 23.5165
+  - _noteIndex: 2
+    _position: 23.7490
+  - _noteIndex: 2
+    _position: 24.2141
+  - _noteIndex: 4
+    _position: 24.4467
+  - _noteIndex: 5
+    _position: 24.6793
+  - _noteIndex: 4
+    _position: 25.6095
+  - _noteIndex: 2
+    _position: 26.5397
+  - _noteIndex: 1
+    _position: 27.0048
+  - _noteIndex: 2
+    _position: 27.2374
+  - _noteIndex: 1
+    _position: 27.4700
+  - _noteIndex: 2
+    _position: 27.9351
+  - _noteIndex: 1
+    _position: 28.1676
+  - _noteIndex: 0
+    _position: 28.4002
+  - _noteIndex: 2
+    _position: 28.8653
+  - _noteIndex: 1
+    _position: 29.0979
+  - _noteIndex: 0
+    _position: 29.3304
+  - _noteIndex: 5
+    _position: 33.9816
+  - _noteIndex: 2
+    _position: 34.4467
+  - _noteIndex: 4
+    _position: 34.6793
+  - _noteIndex: 2
+    _position: 34.9118
+  - _noteIndex: 4
+    _position: 35.3769
+  - _noteIndex: 2
+    _position: 35.6095
+  - _noteIndex: 1
+    _position: 35.8420
+  - _noteIndex: 0
+    _position: 36.7723
+  - _noteIndex: 2
+    _position: 37.7137
+  - _noteIndex: 2
+    _position: 38.1788
+  - _noteIndex: 4
+    _position: 38.4113
+  - _noteIndex: 2
+    _position: 38.6439
+  - _noteIndex: 2
+    _position: 39.1090
+  - _noteIndex: 4
+    _position: 39.3416
+  - _noteIndex: 5
+    _position: 39.5741
+  - _noteIndex: 4
+    _position: 40.5043
+  - _noteIndex: 1
+    _position: 41.4346
+  - _noteIndex: 0
+    _position: 41.8997
+  - _noteIndex: 1
+    _position: 42.1323
+  - _noteIndex: 3
+    _position: 42.3648
+  - _noteIndex: 4
+    _position: 42.8299
+  - _noteIndex: 5
+    _position: 43.0625
+  - _noteIndex: 3
+    _position: 43.2950
+  - _noteIndex: 4
+    _position: 44.2253
+  - _noteIndex: 1
+    _position: 44.6792
+  - _noteIndex: 1
+    _position: 45.1444
+  - _noteIndex: 0
+    _position: 45.3769
+  - _noteIndex: 0
+    _position: 45.6095
+  - _noteIndex: 1
+    _position: 46.0746
+  - _noteIndex: 2
+    _position: 46.5397
+  - _noteIndex: 3
+    _position: 47.0048
+  - _noteIndex: 5
+    _position: 47.4699
+  - _noteIndex: 4
+    _position: 48.1676
+  - _noteIndex: 3
+    _position: 48.8653
+  - _noteIndex: 2
+    _position: 49.7955
+  - _noteIndex: 1
+    _position: 52.1211
+  - _noteIndex: 1
+    _position: 52.5862
+  - _noteIndex: 0
+    _position: 52.8188
+  - _noteIndex: 0
+    _position: 53.0513
+  - _noteIndex: 1
+    _position: 53.5165
+  - _noteIndex: 2
+    _position: 53.9816
+  - _noteIndex: 3
+    _position: 54.4467
+  - _noteIndex: 5
+    _position: 54.9118
+  - _noteIndex: 4
+    _position: 55.6095
+  - _noteIndex: 3
+    _position: 56.3071
+  - _noteIndex: 4
+    _position: 57.2374
+  - _noteIndex: 3
+    _position: 58.1676
+  - _noteIndex: 1
+    _position: 59.5630
+  - _noteIndex: 0
+    _position: 60.0281
+  - _noteIndex: 4
+    _position: 60.4932
+  - _noteIndex: 3
+    _position: 60.9709
+  - _noteIndex: 2
+    _position: 61.4234
+  - _noteIndex: 3
+    _position: 61.9050
+  - _noteIndex: 2
+    _position: 62.3788
+  - _noteIndex: 1
+    _position: 63.2858
+  - _noteIndex: 0
+    _position: 63.7490
+  - _noteIndex: 4
+    _position: 64.2039
+  - _noteIndex: 3
+    _position: 64.6850
+  - _noteIndex: 5
+    _position: 65.1342
+  - _noteIndex: 4
+    _position: 65.3769
+  - _noteIndex: 3
+    _position: 65.5886
+  - _noteIndex: 2
+    _position: 65.8420
+  - _noteIndex: 4
+    _position: 66.0746
+  - _noteIndex: 1
+    _position: 67.0048
+  - _noteIndex: 0
+    _position: 67.4699
+  - _noteIndex: 4
+    _position: 67.9350
+  - _noteIndex: 3
+    _position: 68.4128
+  - _noteIndex: 2
+    _position: 68.8653
+  - _noteIndex: 4
+    _position: 69.3469
+  - _noteIndex: 2
+    _position: 69.8207
+  - _noteIndex: 1
+    _position: 70.7277
+  - _noteIndex: 4
+    _position: 71.1613
+  - _noteIndex: 0
+    _position: 72.1269
+  - _noteIndex: 3
+    _position: 72.5862
+  - _noteIndex: 0
+    _position: 73.0411
+  - _noteIndex: 1
+    _position: 73.5164
+  - _noteIndex: 0
+    _position: 74.9118
+  - _noteIndex: 0
+    _position: 75.3769
+  - _noteIndex: 3
+    _position: 75.6095
+  - _noteIndex: 1
+    _position: 75.8420
+  - _noteIndex: 1
+    _position: 76.3071
+  - _noteIndex: 3
+    _position: 76.5397
+  - _noteIndex: 5
+    _position: 76.7723
+  - _noteIndex: 4
+    _position: 77.7025
+  - _noteIndex: 2
+    _position: 78.6327
+  - _noteIndex: 1
+    _position: 79.0978
+  - _noteIndex: 2
+    _position: 79.3304
+  - _noteIndex: 1
+    _position: 79.5629
+  - _noteIndex: 2
+    _position: 80.0281
+  - _noteIndex: 1
+    _position: 80.2606
+  - _noteIndex: 0
+    _position: 80.4932
+  - _noteIndex: 0
+    _position: 81.4234
+  - _noteIndex: 2
+    _position: 82.3536
+  - _noteIndex: 2
+    _position: 82.8188
+  - _noteIndex: 4
+    _position: 83.0513
+  - _noteIndex: 2
+    _position: 83.2839
+  - _noteIndex: 2
+    _position: 83.7490
+  - _noteIndex: 4
+    _position: 83.9815
+  - _noteIndex: 5
+    _position: 84.2141
+  - _noteIndex: 4
+    _position: 85.1443
+  - _noteIndex: 2
+    _position: 86.0746
+  - _noteIndex: 1
+    _position: 86.5397
+  - _noteIndex: 2
+    _position: 86.7722
+  - _noteIndex: 1
+    _position: 87.0048
+  - _noteIndex: 2
+    _position: 87.4699
+  - _noteIndex: 1
+    _position: 87.7025
+  - _noteIndex: 0
+    _position: 87.9350
+  - _noteIndex: 2
+    _position: 88.4002
+  - _noteIndex: 1
+    _position: 88.6327
+  - _noteIndex: 0
+    _position: 88.8653
+  - _noteIndex: 5
+    _position: 93.5164
+  - _noteIndex: 2
+    _position: 93.9815
+  - _noteIndex: 4
+    _position: 94.2141
+  - _noteIndex: 2
+    _position: 94.4467
+  - _noteIndex: 4
+    _position: 94.9118
+  - _noteIndex: 2
+    _position: 95.1443
+  - _noteIndex: 1
+    _position: 95.3769
+  - _noteIndex: 0
+    _position: 96.3071
+  - _noteIndex: 2
+    _position: 97.2485
+  - _noteIndex: 2
+    _position: 97.7136
+  - _noteIndex: 4
+    _position: 97.9462
+  - _noteIndex: 2
+    _position: 98.1787
+  - _noteIndex: 2
+    _position: 98.6438
+  - _noteIndex: 4
+    _position: 98.8764
+  - _noteIndex: 5
+    _position: 99.1090
+  - _noteIndex: 4
+    _position: 100.0392
+  - _noteIndex: 1
+    _position: 100.9694
+  - _noteIndex: 0
+    _position: 101.4345
+  - _noteIndex: 1
+    _position: 101.6671
+  - _noteIndex: 3
+    _position: 101.8997
+  - _noteIndex: 4
+    _position: 102.3648
+  - _noteIndex: 5
+    _position: 102.5973
+  - _noteIndex: 3
+    _position: 102.8299
+  - _noteIndex: 4
+    _position: 103.7601
+  - _noteIndex: 1
+    _position: 104.2141
+  - _noteIndex: 1
+    _position: 104.6792
+  - _noteIndex: 0
+    _position: 104.9118
+  - _noteIndex: 0
+    _position: 105.1443
+  - _noteIndex: 1
+    _position: 105.6094
+  - _noteIndex: 2
+    _position: 106.0746
+  - _noteIndex: 3
+    _position: 106.5397
+  - _noteIndex: 5
+    _position: 107.0048
+  - _noteIndex: 4
+    _position: 107.7025
+  - _noteIndex: 3
+    _position: 108.4001
+  - _noteIndex: 2
+    _position: 109.3304
+  - _noteIndex: 1
+    _position: 111.6560
+  - _noteIndex: 1
+    _position: 112.1211
+  - _noteIndex: 0
+    _position: 112.3536
+  - _noteIndex: 0
+    _position: 112.5862
+  - _noteIndex: 1
+    _position: 113.0513
+  - _noteIndex: 2
+    _position: 113.5164
+  - _noteIndex: 3
+    _position: 113.9815
+  - _noteIndex: 5
+    _position: 114.4466
+  - _noteIndex: 4
+    _position: 115.1443
+  - _noteIndex: 3
+    _position: 115.8420
+  - _noteIndex: 4
+    _position: 116.7722
+  - _noteIndex: 2
+    _position: 117.7025
+  - _noteIndex: 2
+    _position: 119.0978
+  - _noteIndex: 2
+    _position: 119.5629
+  - _noteIndex: 1
+    _position: 119.7955
+  - _noteIndex: 0
+    _position: 120.0280
+  - _noteIndex: 1
+    _position: 120.4932
+  - _noteIndex: 4
+    _position: 120.9583
+  - _noteIndex: 5
+    _position: 121.4234
+  - _noteIndex: 4
+    _position: 121.8885
+  - _noteIndex: 3
+    _position: 122.5862
+  - _noteIndex: 2
+    _position: 123.2839
+  - _noteIndex: 1
+    _position: 124.2141
+  - _noteIndex: 2
+    _position: 126.5397
+  - _noteIndex: 2
+    _position: 127.0048
+  - _noteIndex: 1
+    _position: 127.2373
+  - _noteIndex: 0
+    _position: 127.4699
+  - _noteIndex: 1
+    _position: 127.9350
+  - _noteIndex: 4
+    _position: 128.4001
+  - _noteIndex: 5
+    _position: 128.8652
+  - _noteIndex: 4
+    _position: 129.3304
+  - _noteIndex: 3
+    _position: 130.0280
+  - _noteIndex: 2
+    _position: 130.7257
+  - _noteIndex: 4
+    _position: 131.6559
+  - _noteIndex: 3
+    _position: 132.5862
+  - _noteIndex: 1
+    _position: 133.9815
+  - _noteIndex: 0
+    _position: 134.4466
+  - _noteIndex: 4
+    _position: 134.9118
+  - _noteIndex: 3
+    _position: 135.3895
+  - _noteIndex: 2
+    _position: 135.8420
+  - _noteIndex: 3
+    _position: 136.3236
+  - _noteIndex: 2
+    _position: 136.7974
+  - _noteIndex: 1
+    _position: 137.7044
+  - _noteIndex: 0
+    _position: 138.1676
+  - _noteIndex: 4
+    _position: 138.6225
+  - _noteIndex: 3
+    _position: 139.1036
+  - _noteIndex: 5
+    _position: 139.5527
+  - _noteIndex: 4
+    _position: 139.7955
+  - _noteIndex: 3
+    _position: 140.0072
+  - _noteIndex: 2
+    _position: 140.2606
+  - _noteIndex: 4
+    _position: 140.4931
+  - _noteIndex: 1
+    _position: 141.4234
+  - _noteIndex: 0
+    _position: 141.8885
+  - _noteIndex: 4
+    _position: 142.3536
+  - _noteIndex: 3
+    _position: 142.8313
+  - _noteIndex: 2
+    _position: 143.2838
+  - _noteIndex: 4
+    _position: 143.7654
+  - _noteIndex: 2
+    _position: 144.2393
+  - _noteIndex: 1
+    _position: 145.1462
+  - _noteIndex: 4
+    _position: 145.5799
+  - _noteIndex: 0
+    _position: 146.5455
+  - _noteIndex: 3
+    _position: 147.0048
+  - _noteIndex: 0
+    _position: 147.4597
+  - _noteIndex: 1
+    _position: 147.9350
+  _duration: 150.7177

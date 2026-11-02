@@ -325,9 +325,18 @@ def read_hand_tuned_value(asset_path, field, default):
     return default
 
 
-def write_track_asset(path, name, backing_guid, instrument_guid, bpm, first_beat, half_time_claps, is_metal, notes, lanes, duration):
+def read_smoke_bars(asset_path):
+    if not asset_path.exists():
+        return []
+    match = re.search(r"^  _smokeBars:\n((?:  - \d+\n)*)", asset_path.read_text(), re.MULTILINE)
+    return [int(bar) for bar in re.findall(r"\d+", match.group(1))] if match else []
+
+
+def write_track_asset(path, name, backing_guid, instrument_guid, bpm, first_beat, half_time_claps, is_metal, smoke_bars, notes, lanes, duration):
     timing_offset = read_hand_tuned_value(path, "_timingOffset", "0")
     instrument_volume = read_hand_tuned_value(path, "_instrumentVolume", "1")
+    if smoke_bars is None:
+        smoke_bars = read_smoke_bars(path)
     lines = [
         "%YAML 1.1", "%TAG !u! tag:unity3d.com,2011:", "--- !u!114 &11400000", "MonoBehaviour:",
         "  m_ObjectHideFlags: 0", "  m_CorrespondingSourceObject: {fileID: 0}", "  m_PrefabInstance: {fileID: 0}",
@@ -337,7 +346,10 @@ def write_track_asset(path, name, backing_guid, instrument_guid, bpm, first_beat
         f"  _instrumentClip: {{fileID: 8300000, guid: {instrument_guid}, type: 3}}",
         f"  _instrumentVolume: {instrument_volume}",
         f"  _bpm: {bpm:g}", f"  _timingOffset: {timing_offset}", f"  _firstBeatTime: {first_beat:g}",
-        f"  _halfTimeClaps: {int(half_time_claps)}", f"  _isMetal: {int(is_metal)}", "  _notes:",
+        f"  _halfTimeClaps: {int(half_time_claps)}", f"  _isMetal: {int(is_metal)}",
+        "  _smokeBars:" if smoke_bars else "  _smokeBars: []",
+        *[f"  - {bar}" for bar in smoke_bars],
+        "  _notes:",
     ]
     for (time, _), lane in zip(notes, lanes):
         lines += [f"  - _noteIndex: {lane}", f"    _position: {time:.4f}"]
@@ -362,6 +374,7 @@ def parse_args():
     parser.add_argument("--sensitivity", type=float, default=1.0, help="higher detects fewer notes")
     parser.add_argument("--half-time-claps", action="store_true")
     parser.add_argument("--metal", action="store_true")
+    parser.add_argument("--smoke-bars", type=int, nargs="*", help="bars where the smoke cannons fire, kept from the existing asset if left out")
     parser.add_argument("--output-dir", type=Path, default=TRACKS_DIR)
     parser.add_argument("--force", action="store_true", help="overwrite an existing song, including hand-edited notes")
     return parser.parse_args()
@@ -453,7 +466,7 @@ def main():
     Path(f"{backing_path}.meta").write_text(AUDIO_META.format(guid=backing_guid), newline="\n")
     write_track_asset(asset_path, asset_name, backing_guid, instrument_guid, bpm,
                       args.first_beat if args.first_beat is not None else note_offset,
-                      args.half_time_claps, args.metal, notes, lanes, frames / sample_rate)
+                      args.half_time_claps, args.metal, args.smoke_bars, notes, lanes, frames / sample_rate)
     Path(f"{asset_path}.meta").write_text(ASSET_META.format(guid=stable_guid(asset_path)), newline="\n")
 
     gaps = [b[0] - a[0] for a, b in zip(notes, notes[1:])]

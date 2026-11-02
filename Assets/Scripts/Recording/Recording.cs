@@ -85,6 +85,7 @@ public sealed class Recording
             RecordedEventType.NoteMissed => new NoteMissedEvent(time, reader.ReadInt32(), reader.ReadInt32()),
             RecordedEventType.EmptyPress => new EmptyPressEvent(time, reader.ReadInt32()),
             RecordedEventType.LaneLayoutChanged => new LaneLayoutChangedEvent(time, reader.ReadSingle(), reader.ReadSingle()),
+            RecordedEventType.LaneDepthChanged => new LaneDepthChangedEvent(time, reader.ReadSingle()),
 
             RecordedEventType.AudienceMemberJoined => new AudienceMemberJoinedEvent(
                 time,
