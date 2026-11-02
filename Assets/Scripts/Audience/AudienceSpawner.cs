@@ -77,6 +77,15 @@ public class AudienceSpawner : MonoBehaviour
         }
     }
 
+    public void GatherStartingCrowd(float fraction)
+    {
+        var target = Mathf.RoundToInt(Mathf.Clamp01(fraction) * _initialSize);
+        while (_members.Count < target)
+        {
+            AddMember(false).PopIn();
+        }
+    }
+
     public AudienceMember AddMember(bool popIn)
     {
         var position = FindFreeSpot(GetAreaSize(_members.Count + 1));

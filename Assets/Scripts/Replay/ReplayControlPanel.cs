@@ -9,6 +9,7 @@ public class ReplayControlPanel : MonoBehaviour
 {
     [SerializeField] private ReplayEventDispatcher _dispatcher;
     [SerializeField] private SceneTransition _sceneTransition;
+    [SerializeField] private string _mainMenuSceneName = "Concert";
     [SerializeField] private float[] _speeds = { 0.25f, 0.5f, 1.0f, 2.0f, 4.0f };
     // The left controller's menu button is the Quest convention for an app's own menu
     [SerializeField] private InputAction _toggleAction = CreateToggleAction();
@@ -59,6 +60,7 @@ public class ReplayControlPanel : MonoBehaviour
         _playPauseLabel = CreateButton(_panel.transform, "Pause", TogglePause);
         _speedLabel = CreateButton(_panel.transform, "", CycleSpeed);
         CreateButton(_panel.transform, "Restart", _sceneTransition.ReloadScene);
+        CreateButton(_panel.transform, "Exit to menu", () => _sceneTransition.LoadScene(_mainMenuSceneName));
         CreateButton(_panel.transform, "Close", () => _panel.SetActive(false));
         BuildShare();
     }

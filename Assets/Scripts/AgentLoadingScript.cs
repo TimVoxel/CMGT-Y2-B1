@@ -13,6 +13,8 @@ public class AgentLoadingScript : ScriptableObject
         "warming up the crowd...",
         "aiming the spotlights...",
     };
+    [SerializeField] private string _audienceStep = "gathering you an audience...";
+    [SerializeField] private float _audienceStepDuration = 6.0f;
     [SerializeField] private string _doneMessage = "all set. enjoy your show!";
 
     [Header("Progress")]
@@ -27,6 +29,8 @@ public class AgentLoadingScript : ScriptableObject
     public string AgentName => _agentName;
     public Color AgentNameColor => _agentNameColor;
     public string[] Steps => _steps;
+    public string AudienceStep => _audienceStep;
+    public float AudienceStepDuration => _audienceStepDuration;
     public string DoneMessage => _doneMessage;
     public Vector2 BurstSizeRange => _burstSizeRange;
     public Vector2 BurstSpeedRange => _burstSpeedRange;

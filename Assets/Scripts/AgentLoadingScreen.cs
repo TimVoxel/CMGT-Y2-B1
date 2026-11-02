@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -36,12 +37,25 @@ public class AgentLoadingScreen
         _panel.SetActive(false);
     }
 
-    public IEnumerator Play()
+    public IEnumerator Play(Action<float> onAudienceProgress)
     {
         _panel.SetActive(true);
         foreach (var step in _script.Steps)
         {
             yield return Load(step);
+        }
+        yield return LoadSteadily(_script.AudienceStep, _script.AudienceStepDuration, onAudienceProgress);
+    }
+
+    private IEnumerator LoadSteadily(string step, float duration, Action<float> onProgress)
+    {
+        var progress = 0.0f;
+        while (progress < 1.0f)
+        {
+            progress = Mathf.MoveTowards(progress, 1.0f, Time.deltaTime / Mathf.Max(1e-4f, duration));
+            Show(step, progress);
+            onProgress(progress);
+            yield return null;
         }
     }
 
@@ -56,13 +70,13 @@ public class AgentLoadingScreen
         Show(step, progress);
         while (progress < 1.0f)
         {
-            if (Random.value < _script.StallChance)
+            if (UnityEngine.Random.value < _script.StallChance)
             {
-                yield return new WaitForSeconds(Random.Range(_script.StallDurationRange.x, _script.StallDurationRange.y));
+                yield return new WaitForSeconds(UnityEngine.Random.Range(_script.StallDurationRange.x, _script.StallDurationRange.y));
             }
 
-            var target = Mathf.Min(1.0f, progress + Random.Range(_script.BurstSizeRange.x, _script.BurstSizeRange.y));
-            var speed = Random.Range(_script.BurstSpeedRange.x, _script.BurstSpeedRange.y);
+            var target = Mathf.Min(1.0f, progress + UnityEngine.Random.Range(_script.BurstSizeRange.x, _script.BurstSizeRange.y));
+            var speed = UnityEngine.Random.Range(_script.BurstSpeedRange.x, _script.BurstSpeedRange.y);
             while (progress < target)
             {
                 progress = Mathf.MoveTowards(progress, target, speed * Time.deltaTime);

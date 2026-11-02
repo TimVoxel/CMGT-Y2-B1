@@ -10,11 +10,11 @@ public class ConcertMenu : MonoBehaviour
 {
     [SerializeField] private ConcertSet _concertSet;
     [SerializeField] private ConcertRevenue _revenue;
+    [SerializeField] private AudienceSpawner _audience;
     [SerializeField] private GamePause _pause;
     [SerializeField] private bool _showStartPanel = true;
     [SerializeField] private bool _showPausePanel = true;
 
-    [SerializeField] private float _loadingDelay = 1.5f;
     [SerializeField] private AgentLoadingScript _loadingScript;
     [SerializeField] private GigComments _gigComments;
 
@@ -34,6 +34,15 @@ public class ConcertMenu : MonoBehaviour
     [SerializeField] private float _commentsPanelGap = 50.0f;
     [SerializeField] private float _commentsPanelYaw = 15.0f;
 
+    [Header("Demo lock")]
+    [SerializeField] private string _commentsLockedPopupText = "For the purposes of the demo, please read all comments before proceeding with these options";
+    [SerializeField] private Vector2 _commentsLockedPopupSize = new Vector2(800.0f, 320.0f);
+    [SerializeField] private float _commentsLockedPopupDuration = 4.0f;
+    [SerializeField] private Color _commentsLockedPopupColor = new Color(0.0f, 0.0f, 0.0f, 0.95f);
+    [SerializeField] private Color _lockedButtonColor = new Color(0.1f, 0.1f, 0.12f, 1.0f);
+    [SerializeField] private float _lockedButtonTextAlpha = 0.4f;
+    [SerializeField] private float _scrolledToBottomTolerance = 5.0f;
+
     [Header("Start")]
     [SerializeField] private KeySweepDetector _keySweep;
     [SerializeField] private string _startTip = "Poke all keys left to right to start";
@@ -50,7 +59,11 @@ public class ConcertMenu : MonoBehaviour
     private Button _revenueButton;
     private TextMeshProUGUI _revenueText;
     private Button _watchReplayButton;
-    private Transform _commentList;
+    private Button _exitToMenuButton;
+    private GameObject _commentsLockedPopup;
+    private float _commentsLockedPopupHideTime;
+    private bool _hasReadAllComments;
+    private RectTransform _commentList;
     private Button _moreCommentsButton;
     private List<GigComment> _comments;
     private int _commentsLoaded;
@@ -111,11 +124,38 @@ public class ConcertMenu : MonoBehaviour
         {
             _loadingScreen = new AgentLoadingScreen(_loadingScript);
             _loadingScreen.Build(transform, _metersPerUnit, _spacing, _panelColor, _fontSize);
+        }
+    }
+
+    private void Update()
+    {
+        if (_commentsLockedPopup.activeSelf && Time.unscaledTime >= _commentsLockedPopupHideTime)
+        {
+            _commentsLockedPopup.SetActive(false);
+        }
+
+        if (!_hasReadAllComments && _endPanel.activeSelf && HasReachedLastComment())
+        {
+            _hasReadAllComments = true;
+            _commentsLockedPopup.SetActive(false);
+            SetButtonLocked(_watchReplayButton, false);
+            SetButtonLocked(_exitToMenuButton, false);
+        }
+    }
+
+    public void BeginLoading()
+    {
+        if (_loading != null || _concertSet.HasStarted)
+        {
+            return;
+        }
+        if (_loadingScreen != null)
+        {
             _loading = StartCoroutine(LoadShow());
         }
         else
         {
-            ShowStartPanel();
+            EndLoading();
         }
     }
 
@@ -132,9 +172,9 @@ public class ConcertMenu : MonoBehaviour
             Debug.Log("[Debug] Skipped loading");
             EndLoading();
         }
-        else if (_startPanel.activeSelf && !_concertSet.HasStarted)
+        else if (!_concertSet.HasStarted)
         {
-            Debug.Log("[Debug] Skipped poking the keys");
+            Debug.Log("[Debug] Skipped the start screen");
             _concertSet.StartSet();
         }
     }
@@ -156,6 +196,7 @@ public class ConcertMenu : MonoBehaviour
 
     private void OnSetStarted()
     {
+        _audience.GatherStartingCrowd(1.0f);
         _startPanel.SetActive(false);
         if (_keySweep != null)
         {
@@ -172,6 +213,10 @@ public class ConcertMenu : MonoBehaviour
             _loadingScreen.Hide();
         }
         _endPanel.SetActive(true);
+        if (_commentList != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_commentList);
+        }
     }
 
     private void OnPaused()
@@ -212,18 +257,25 @@ public class ConcertMenu : MonoBehaviour
 
     private IEnumerator LoadShow()
     {
-        yield return new WaitForSeconds(_loadingDelay);
-        yield return _loadingScreen.Play();
+        yield return _loadingScreen.Play(_audience.GatherStartingCrowd);
         EndLoading();
     }
 
     private void EndLoading()
     {
         _loading = null;
-        _loadingScreen.Hide();
-        if (!_concertSet.HasStarted)
+        _loadingScreen?.Hide();
+        if (_concertSet.HasStarted)
+        {
+            return;
+        }
+        if (_showStartPanel)
         {
             ShowStartPanel();
+        }
+        else
+        {
+            _concertSet.StartSet();
         }
     }
 
@@ -255,17 +307,60 @@ public class ConcertMenu : MonoBehaviour
         _endPanel = WorldUI.CreatePanel(transform, "End Panel", _metersPerUnit, _spacing, _panelColor);
         _endPanel.transform.localPosition = Vector3.up * _endPanelRaise;
         WorldUI.CreateLabel(_endPanel.transform, "That's the show!", _buttonSize, _fontSize);
-        _revenueButton = WorldUI.CreateButton(_endPanel.transform, "What would I have earnt?", ShowRevenue, _buttonSize, _fontSize, _buttonColor);
-        _revenueText = _revenueButton.GetComponentInChildren<TextMeshProUGUI>();
         if (_concertSet.CanRecord)
         {
             _watchReplayButton = WorldUI.CreateButton(_endPanel.transform, "Watch replay", WatchReplay, _buttonSize, _fontSize, _buttonColor);
         }
-        WorldUI.CreateButton(_endPanel.transform, "Do it again!", _concertSet.Restart, _buttonSize, _fontSize, _buttonColor);
+        _revenueButton = WorldUI.CreateButton(_endPanel.transform, "What would I have earnt?", ShowRevenue, _buttonSize, _fontSize, _buttonColor);
+        _revenueText = _revenueButton.GetComponentInChildren<TextMeshProUGUI>();
+        _exitToMenuButton = WorldUI.CreateButton(_endPanel.transform, "Exit to menu", ExitToMenu, _buttonSize, _fontSize, _buttonColor);
         if (_gigComments != null)
         {
             BuildComments();
         }
+        BuildCommentsLockedPopup();
+
+        _hasReadAllComments = _gigComments == null;
+        SetButtonLocked(_watchReplayButton, !_hasReadAllComments);
+        SetButtonLocked(_exitToMenuButton, !_hasReadAllComments);
+    }
+
+    private void BuildCommentsLockedPopup()
+    {
+        var popupText = WorldUI.CreateLabel(_endPanel.transform, _commentsLockedPopupText, _commentsLockedPopupSize, _fontSize * 0.7f);
+        _commentsLockedPopup = popupText.transform.parent.gameObject;
+        _commentsLockedPopup.GetComponent<LayoutElement>().ignoreLayout = true;
+        ((RectTransform)_commentsLockedPopup.transform).sizeDelta = _commentsLockedPopupSize;
+        var background = _commentsLockedPopup.AddComponent<Image>();
+        background.color = _commentsLockedPopupColor;
+        background.raycastTarget = false;
+        _commentsLockedPopup.SetActive(false);
+    }
+
+    private void ShowCommentsLockedPopup()
+    {
+        _commentsLockedPopup.SetActive(true);
+        _commentsLockedPopupHideTime = Time.unscaledTime + _commentsLockedPopupDuration;
+    }
+
+    private void SetButtonLocked(Button button, bool isLocked)
+    {
+        if (button == null)
+        {
+            return;
+        }
+        button.image.color = isLocked ? _lockedButtonColor : _buttonColor;
+        button.GetComponentInChildren<TextMeshProUGUI>(true).alpha = isLocked ? _lockedButtonTextAlpha : 1.0f;
+    }
+
+    private bool HasReachedLastComment()
+    {
+        if (_commentsLoaded < _comments.Count)
+        {
+            return false;
+        }
+        var hiddenBelowView = _commentList.rect.height - _commentList.anchoredPosition.y - _commentsViewHeight;
+        return hiddenBelowView <= _scrolledToBottomTolerance;
     }
 
     private void BuildComments()
@@ -300,6 +395,7 @@ public class ConcertMenu : MonoBehaviour
 
         _moreCommentsButton.transform.SetAsLastSibling();
         _moreCommentsButton.gameObject.SetActive(_commentsLoaded < _comments.Count);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_commentList);
     }
 
     private void CreateComment(GigComment comment)
@@ -320,8 +416,23 @@ public class ConcertMenu : MonoBehaviour
         return likes == 1 ? "1 like" : $"{count} likes";
     }
 
+    private void ExitToMenu()
+    {
+        if (!_hasReadAllComments)
+        {
+            ShowCommentsLockedPopup();
+            return;
+        }
+        _concertSet.Restart();
+    }
+
     private void WatchReplay()
     {
+        if (!_hasReadAllComments)
+        {
+            ShowCommentsLockedPopup();
+            return;
+        }
         _watchReplayButton.interactable = false;
         _concertSet.WatchReplay();
     }
@@ -337,6 +448,7 @@ public class ConcertMenu : MonoBehaviour
     {
         _concertSet = FindFirstObjectByType<ConcertSet>();
         _revenue = FindFirstObjectByType<ConcertRevenue>();
+        _audience = FindFirstObjectByType<AudienceSpawner>();
         _pause = FindFirstObjectByType<GamePause>();
         _debugSkip = FindFirstObjectByType<DebugSkipInput>();
         _keySweep = FindFirstObjectByType<KeySweepDetector>();

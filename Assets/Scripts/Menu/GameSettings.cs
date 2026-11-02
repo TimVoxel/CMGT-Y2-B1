@@ -7,18 +7,26 @@ public class GameSettings : MonoBehaviour
     [SerializeField] private CurvedSlider _lightBrightnessSlider;
     [SerializeField] private CurvedSlider _NoteHitBoxCheckBox;
     [SerializeField] private CurvedSlider _volumeSlider;
+    [SerializeField] private AudioClip _volumeReleaseNote;
+    [SerializeField, Range(0.0f, 1.0f)] private float _volumeReleaseNoteVolume = 0.3f;
     [SerializeField, Range(0.0f, 1.0f)] private float _maxDarkness = 0.9f;
     [SerializeField] private Vector2 _lightSpeedRange = new Vector2(1.0f, 8.0f);
 
-    private const string DarknessKey = "Settings.Darkness";
+    private const string DarknessKey = "Settings.Brightness";
     private const string LightBrightnessKey = "Settings.LightBrightness";
     private const string VolumeKey = "Settings.Volume";
 
     private SphericalHarmonicsL2 _originalAmbientProbe;
     private float _originalReflectionIntensity;
+    private AudioSource _volumeReleaseSource;
 
     private void Awake()
     {
+        _volumeReleaseSource = gameObject.AddComponent<AudioSource>();
+        _volumeReleaseSource.playOnAwake = false;
+        _volumeReleaseSource.ignoreListenerPause = true;
+
+
         _originalAmbientProbe = RenderSettings.ambientProbe;
         _originalReflectionIntensity = RenderSettings.reflectionIntensity;
 
@@ -37,6 +45,7 @@ public class GameSettings : MonoBehaviour
         _darknessSlider.ValueChanged += OnSliderChanged;
         _lightBrightnessSlider.ValueChanged += OnSliderChanged;
         _volumeSlider.ValueChanged += OnSliderChanged;
+        _volumeSlider.Released += PlayVolumeReleaseNote;
     }
 
     private void OnDisable()
@@ -44,6 +53,7 @@ public class GameSettings : MonoBehaviour
         _darknessSlider.ValueChanged -= OnSliderChanged;
         _lightBrightnessSlider.ValueChanged -= OnSliderChanged;
         _volumeSlider.ValueChanged -= OnSliderChanged;
+        _volumeSlider.Released -= PlayVolumeReleaseNote;
         PlayerPrefs.Save();
     }
 
@@ -53,6 +63,11 @@ public class GameSettings : MonoBehaviour
         {
             PlayerPrefs.Save();
         }
+    }
+
+    private void PlayVolumeReleaseNote()
+    {
+        _volumeReleaseSource.PlayOneShot(_volumeReleaseNote, _volumeReleaseNoteVolume);
     }
 
     private void OnSliderChanged(float value)

@@ -249,7 +249,7 @@ MonoBehaviour:
   _labelSpacing: 0.08
   _trackColor: {r: 1, g: 1, b: 1, a: 0.4}
   _handleColor: {r: 1, g: 1, b: 1, a: 0.9}
-  _value: 0
+  _value: 1
 --- !u!1 &693124909044713708
 GameObject:
   m_ObjectHideFlags: 0
@@ -494,8 +494,8 @@ MonoBehaviour:
   _verticalOffset: -0.05
   _segments: 16
   _fontSize: 1.2
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.35}
+  _idleColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
+  _hoverColor: {r: 0.35, g: 0.35, b: 0.42, a: 1}
 --- !u!1 &2615300675154867657
 GameObject:
   m_ObjectHideFlags: 0
@@ -701,12 +701,12 @@ MonoBehaviour:
   _radius: 2
   _centerAngle: 0
   _arcAngle: 26
-  _height: 0.3
-  _verticalOffset: -0.225
+  _height: 0.18
+  _verticalOffset: -0.45
   _segments: 16
   _fontSize: 1.2
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.35}
+  _idleColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
+  _hoverColor: {r: 0.35, g: 0.35, b: 0.42, a: 1}
 --- !u!1 &3011738849687884644
 GameObject:
   m_ObjectHideFlags: 0
@@ -912,12 +912,13 @@ MonoBehaviour:
   _radius: 2
   _centerAngle: 0
   _arcAngle: 26
-  _height: 0.3
-  _verticalOffset: 0.475
+  _height: 0.18
+  _verticalOffset: -0.05
   _segments: 16
   _fontSize: 1.2
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.35}
+  _idleColor: {r: 0.12, g: 0.84, b: 0.38, a: 1}
+  _hoverColor: {r: 0.35, g: 0.95, b: 0.58, a: 1}
+  _labelColor: {r: 0.1, g: 0.08, b: 0.02, a: 1}
 --- !u!1 &3182321038204519132
 GameObject:
   m_ObjectHideFlags: 0
@@ -1343,8 +1344,8 @@ MonoBehaviour:
   _verticalOffset: -0.05
   _segments: 16
   _fontSize: 1.2
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.15}
+  _idleColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
+  _hoverColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
 --- !u!1 &3940960236328141991
 GameObject:
   m_ObjectHideFlags: 0
@@ -1581,16 +1582,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fd608defe095e24c8d95a8ed53552c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurvedMenuButton
-  _label: Replay
+  _label: Browse Replays
   _radius: 2
   _centerAngle: 0
   _arcAngle: 26
-  _height: 0.3
-  _verticalOffset: 0.125
+  _height: 0.18
+  _verticalOffset: -0.25
   _segments: 16
-  _fontSize: 1.2
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.35}
+  _fontSize: 1
+  _idleColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
+  _hoverColor: {r: 0.35, g: 0.35, b: 0.42, a: 1}
 --- !u!1 &6135765461766518240
 GameObject:
   m_ObjectHideFlags: 0
@@ -1796,12 +1797,12 @@ MonoBehaviour:
   _radius: 2
   _centerAngle: 0
   _arcAngle: 26
-  _height: 0.3
-  _verticalOffset: -0.575
+  _height: 0.18
+  _verticalOffset: -0.65
   _segments: 16
   _fontSize: 1.2
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.35}
+  _idleColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
+  _hoverColor: {r: 0.35, g: 0.35, b: 0.42, a: 1}
 --- !u!1 &6422919501754672402
 GameObject:
   m_ObjectHideFlags: 0
@@ -2011,8 +2012,8 @@ MonoBehaviour:
   _verticalOffset: 0.3
   _segments: 16
   _fontSize: 1.2
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.35}
+  _idleColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
+  _hoverColor: {r: 0.35, g: 0.35, b: 0.42, a: 1}
 --- !u!1 &6810508793440463726
 GameObject:
   m_ObjectHideFlags: 0
@@ -2088,6 +2089,8 @@ MonoBehaviour:
   _lightBrightnessSlider: {fileID: 7118633668191468353}
   _NoteHitBoxCheckBox: {fileID: 0}
   _volumeSlider: {fileID: 2093301481542426385}
+  _volumeReleaseNote: {fileID: 8300000, guid: 3ba36bf4800145ef874dbf50bf25c759, type: 3}
+  _volumeReleaseNoteVolume: 0.3
   _maxDarkness: 0.9
   _lightSpeedRange: {x: 1, y: 8}
 --- !u!114 &1693680458877072322
@@ -2319,8 +2322,8 @@ MonoBehaviour:
   _verticalOffset: -0.4
   _segments: 16
   _fontSize: 0.8
-  _idleColor: {r: 1, g: 1, b: 1, a: 0.15}
-  _hoverColor: {r: 1, g: 1, b: 1, a: 0.35}
+  _idleColor: {r: 0.2, g: 0.2, b: 0.25, a: 1}
+  _hoverColor: {r: 0.35, g: 0.35, b: 0.42, a: 1}
 --- !u!1 &8534598995789156609
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,8 +17,9 @@ public class CurvedMenuButton : MonoBehaviour
     [SerializeField] private float _verticalOffset = -0.05f;
     [SerializeField] private int _segments = 16;
     [SerializeField] private float _fontSize = 1.2f;
-    [SerializeField] private Color _idleColor = new Color(1.0f, 1.0f, 1.0f, 0.15f);
-    [SerializeField] private Color _hoverColor = new Color(1.0f, 1.0f, 1.0f, 0.35f);
+    [SerializeField] private Color _idleColor = new Color(0.2f, 0.2f, 0.25f, 1.0f);
+    [SerializeField] private Color _hoverColor = new Color(0.35f, 0.35f, 0.42f, 1.0f);
+    [SerializeField] private Color _labelColor = Color.white;
 
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
@@ -41,7 +42,8 @@ public class CurvedMenuButton : MonoBehaviour
         if (!string.IsNullOrEmpty(_label))
         {
             var width = _radius * _arcAngle * Mathf.Deg2Rad;
-            CreateLabel(transform, _label, _radius - 0.05f, _centerAngle, _verticalOffset, new Vector2(width, _height), _fontSize);
+            var label = CreateLabel(transform, _label, _radius - 0.05f, _centerAngle, _verticalOffset, new Vector2(width, _height), _fontSize);
+            label.color = _labelColor;
         }
         SetColor(_idleColor);
     }

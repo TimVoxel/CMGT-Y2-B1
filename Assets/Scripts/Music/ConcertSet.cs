@@ -26,6 +26,7 @@ public class ConcertSet : MonoBehaviour
     private bool _isLoadingReplay;
 
     public bool CanRecord => _recordingWriter != null;
+    public string RecordingsDirectory => _recordingWriter.OutputDir;
     public bool HasStarted => _songIndex >= 0;
 
     public event System.Action SetStarted;
