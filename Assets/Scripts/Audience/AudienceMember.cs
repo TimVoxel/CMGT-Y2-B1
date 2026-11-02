@@ -68,6 +68,7 @@ public class AudienceMember : MonoBehaviour
     public float ClapThreshold => Mathf.Lerp(_engagementThreshold, _clapCeiling, _clapThresholdBlend);
     public bool IsClapping => _engagement != null && _engagement.Engagement >= ClapThreshold;
     public bool IsMoshing => _isMoshing;
+    public bool IsSeated => _maxAmplitude <= 0.0f;
     public bool IsExcited => _excitedTimeLeft > 0.0f;
     public Vector3 Center => _renderer != null ? _renderer.bounds.center : transform.position;
     public Vector3 BasePosition => _basePosition;
@@ -138,6 +139,11 @@ public class AudienceMember : MonoBehaviour
 
     public void Excite(float duration)
     {
+        if (IsSeated)
+        {
+            return;
+        }
+
         _excitedTimeLeft = Mathf.Max(_excitedTimeLeft, duration);
     }
 

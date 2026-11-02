@@ -19,7 +19,7 @@ MonoBehaviour:
   _timingOffset: 0
   _firstBeatTime: 0.0318648
   _halfTimeClaps: 0
-  _isMetal: 0
+  _isMetal: 1
   _smokeBars:
   - 12
   - 43

@@ -18,6 +18,7 @@ public class CrowdClap : MonoBehaviour
     [SerializeField] private Vector2 _volumeRange = new Vector2(0.2f, 0.8f);
     // Optional 0..1 spatial blend for the created sources (0 = 2D)
     [SerializeField, Range(0.0f, 1.0f)] private float _spatialBlend = 0.0f;
+    [SerializeField] private CrowdAudioArea _audioArea = new CrowdAudioArea();
 
     // Claps are scheduled on the audio clock this far ahead of the beat
     private const double ScheduleAhead = 0.1;
@@ -32,8 +33,7 @@ public class CrowdClap : MonoBehaviour
     {
         for (var i = 0; i < _maxLayers; i++)
         {
-            var source = gameObject.AddComponent<AudioSource>();
-            source.playOnAwake = false;
+            var source = _audioArea.CreateSource(transform, $"Clap Layer {i}");
             source.spatialBlend = _spatialBlend;
             _sources.Add(source);
         }

@@ -48,6 +48,8 @@ public class LaneHitZone : MonoBehaviour
     [SerializeField] private UnityEvent _onEmptyPress;
     [SerializeField] private UnityEvent _onMissed;
 
+    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
+
     private readonly Dictionary<LaneHitter, HitterState> _hitterStates = new Dictionary<LaneHitter, HitterState>();
     private float _lastPressTime = float.NegativeInfinity;
     private Bounds _barBounds;
@@ -67,7 +69,20 @@ public class LaneHitZone : MonoBehaviour
         _laneIndex = laneIndex;
         foreach (var particles in _laneColoredParticles)
         {
-            particles.sharedMaterial = laneMaterial;
+            ApplyLaneColor(particles, laneMaterial.color);
+        }
+    }
+
+    private static void ApplyLaneColor(ParticleSystemRenderer particles, Color laneColor)
+    {
+        laneColor.a = 1.0f;
+        var main = particles.GetComponent<ParticleSystem>().main;
+        main.startColor = laneColor;
+
+        var material = particles.material;
+        if (material.IsKeywordEnabled("_EMISSION"))
+        {
+            material.SetColor(EmissionColorId, laneColor);
         }
     }
 
