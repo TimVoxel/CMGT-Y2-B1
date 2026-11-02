@@ -14,6 +14,7 @@ public class SyncedStemPlayback
     private readonly AudioSource _backingSource;
     private readonly AudioSource _instrumentSource;
     private readonly float _fullVolume;
+    private readonly float _leadVolume;
 
     private AudioClip _backingClip;
     private AudioClip _instrumentClip;
@@ -21,8 +22,9 @@ public class SyncedStemPlayback
     private float _trackInstrumentVolume = 1.0f;
     private bool _isInstrumentMuted;
 
-    public SyncedStemPlayback(AudioSource backingSource)
+    public SyncedStemPlayback(AudioSource backingSource, float leadVolume)
     {
+        _leadVolume = leadVolume;
         _backingSource = backingSource;
         _instrumentSource = backingSource.gameObject.AddComponent<AudioSource>();
         _fullVolume = backingSource.volume;
@@ -111,7 +113,7 @@ public class SyncedStemPlayback
 
     private void ApplyInstrumentVolume()
     {
-        _instrumentSource.volume = _fullVolume * _trackInstrumentVolume * _instrumentVolumeFactor;
+        _instrumentSource.volume = _fullVolume * _leadVolume * _trackInstrumentVolume * _instrumentVolumeFactor;
     }
 
     private static void ScheduleSource(AudioSource source, double dspTime, double clipTimeSeconds, float speed)

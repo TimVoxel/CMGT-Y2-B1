@@ -20,6 +20,11 @@ MonoBehaviour:
   _firstBeatTime: 0.029464
   _halfTimeClaps: 0
   _isMetal: 0
+  _smokeBars:
+  - 29
+  - 61
+  - 77
+  - 85
   _notes:
   - _noteIndex: 2
     _position: 0.0295

@@ -43,6 +43,8 @@ public class XylophoneStand : MonoBehaviour
     private PartPose[] _footPoses;
     private int[] _footLegIndices;
     private Vector3[] _footOffsetsFromLegBottom;
+    private Vector3 _initialPosition;
+    private float _initialHitLineDepth;
     private float _initialHitLineY;
     private float _initialLaneBarsCenter;
     private float _initialLaneBarSpacing;
@@ -71,6 +73,8 @@ public class XylophoneStand : MonoBehaviour
     private void Capture()
     {
         _captured = true;
+        _initialPosition = transform.position;
+        _initialHitLineDepth = _trackPlayer.HitLineDepth;
         _initialHitLineY = _trackPlayer.HitLineCenter.y;
 
         var laneBarPositions = _laneBars.Select(bar => bar.localPosition.z).OrderBy(z => z).ToArray();
@@ -145,6 +149,8 @@ public class XylophoneStand : MonoBehaviour
         {
             Capture();
         }
+
+        transform.position = _initialPosition + _trackPlayer.HorizontalTravelDirection * (_trackPlayer.HitLineDepth - _initialHitLineDepth);
 
         var rootScale = transform.lossyScale;
         var lengthStretch = _trackPlayer.LaneSpacing / Mathf.Max(1e-6f, _initialLaneBarSpacing * rootScale.z);

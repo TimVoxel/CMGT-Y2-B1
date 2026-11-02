@@ -19,6 +19,7 @@ public class ReplaySong : MonoBehaviour
         _dispatcher.Subscribe<NoteMissedEvent>(OnNoteMissed);
         _dispatcher.Subscribe<EmptyPressEvent>(OnEmptyPress);
         _dispatcher.Subscribe<LaneLayoutChangedEvent>(OnLaneLayoutChanged);
+        _dispatcher.Subscribe<LaneDepthChangedEvent>(OnLaneDepthChanged);
         _dispatcher.Ticked += AdvanceSong;
         _dispatcher.Finished += OnReplayFinished;
     }
@@ -31,6 +32,7 @@ public class ReplaySong : MonoBehaviour
         _dispatcher.Unsubscribe<NoteMissedEvent>(OnNoteMissed);
         _dispatcher.Unsubscribe<EmptyPressEvent>(OnEmptyPress);
         _dispatcher.Unsubscribe<LaneLayoutChangedEvent>(OnLaneLayoutChanged);
+        _dispatcher.Unsubscribe<LaneDepthChangedEvent>(OnLaneDepthChanged);
         _dispatcher.Ticked -= AdvanceSong;
         _dispatcher.Finished -= OnReplayFinished;
     }
@@ -89,5 +91,10 @@ public class ReplaySong : MonoBehaviour
     private void OnLaneLayoutChanged(LaneLayoutChangedEvent layout)
     {
         _trackPlayer.ApplyRecordedLayout(layout.HitLineHeight, layout.HorizontalHeightFactor);
+    }
+
+    private void OnLaneDepthChanged(LaneDepthChangedEvent depth)
+    {
+        _trackPlayer.SetHitLineDepth(depth.HitLineDepth);
     }
 }

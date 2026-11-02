@@ -21,6 +21,7 @@ FIRST_CHUNK_OFFSET = 24
 EVENT_SIZE = 16
 REGION_RECORD_SIZE = 80
 REGION_RECORD_MARKER = 0x20
+AUDIO_REGION_RECORD_MARKER = 0x24
 REGION_TRANSPOSE_OFFSET = 53
 EVENT_CONTINUATION_MARKER = 0x89
 UNBOUNDED_REGION_LENGTH = 0x3FFFFFFF
@@ -151,9 +152,13 @@ def read_tracks(band_path):
     names_by_track = defaultdict(Counter)
     region_count = 0
     for offset in range(0, len(root) - EVENT_SIZE, REGION_RECORD_SIZE):
-        if root[offset] != REGION_RECORD_MARKER or root[offset + EVENT_SIZE + 7] != EVENT_CONTINUATION_MARKER:
-            raise BandFormatError(f"Unexpected region record at {offset} in the root folder")
+        if root[offset + EVENT_SIZE + 7] != EVENT_CONTINUATION_MARKER:
+            continue
         region_count += 1
+        if root[offset] == AUDIO_REGION_RECORD_MARKER:
+            continue
+        if root[offset] != REGION_RECORD_MARKER:
+            raise BandFormatError(f"Unexpected region record at {offset} in the root folder")
         position = struct.unpack_from("<I", root, offset + 4)[0]
         track_number = root[offset + EVENT_SIZE + 4]
         length = struct.unpack_from("<I", root, offset + EVENT_SIZE + 12)[0]

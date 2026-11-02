@@ -113,6 +113,10 @@ def read_lane_layout(r: Reader):
     return f"hit line height {r.float():.3f}  horizontal factor {r.float():.3f}"
 
 
+def read_lane_depth(r: Reader):
+    return f"hit line depth {r.float():.3f}"
+
+
 def read_member_joined(r: Reader):
     member_id, prefab = r.int(), r.int()
     position, rotation = r.vector3(), r.quaternion()
@@ -147,6 +151,7 @@ EVENTS = {
     13: ("NoteMissed", read_note_missed),
     14: ("EmptyPress", read_empty_press),
     15: ("LaneLayoutChanged", read_lane_layout),
+    16: ("LaneDepthChanged", read_lane_depth),
     20: ("AudienceMemberJoined", read_member_joined),
     21: ("AudienceMemberLeft", read_member_left),
     22: ("EngagementChanged", read_engagement),

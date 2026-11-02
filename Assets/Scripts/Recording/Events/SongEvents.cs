@@ -76,3 +76,15 @@ public sealed class LaneLayoutChangedEvent : RecordedEvent
     public float HitLineHeight { get; }
     public float HorizontalHeightFactor { get; }
 }
+
+// Separate from the layout event so recordings made before lanes followed the player's depth still load
+public sealed class LaneDepthChangedEvent : RecordedEvent
+{
+    public LaneDepthChangedEvent(double time, float hitLineDepth) : base(time)
+    {
+        HitLineDepth = hitLineDepth;
+    }
+
+    public override RecordedEventType Type => RecordedEventType.LaneDepthChanged;
+    public float HitLineDepth { get; }
+}

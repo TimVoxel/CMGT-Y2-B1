@@ -233,6 +233,7 @@ public class ConcertRecorder : MonoBehaviour
     private void OnLaneLayoutChanged()
     {
         Record(new LaneLayoutChangedEvent(Now, _trackPlayer.HitLineCenter.y, _trackPlayer.HorizontalHeightFactor));
+        Record(new LaneDepthChangedEvent(Now, _trackPlayer.HitLineDepth));
     }
 
     private void OnMemberAdded(AudienceMember member, bool poppedIn)
